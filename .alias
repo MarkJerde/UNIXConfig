@@ -1,0 +1,71 @@
+# Battery percent remaining
+alias juice='ioreg -l | grep -i capacity | tr '"'"'\n'"'"' '"'"' | '"'"' | awk '"'"'{printf("%.2f%%\n", $10/$5 * 100)}'"'"''
+
+# File Juicer
+alias juicer='/Applications/File\ Juicer.app/Contents/MacOS/File\ Juicer'
+
+# CVS aliases
+alias cvsso='cvs status|grep "Status:"|grep -v "Up-to-date"'
+alias cvss='echo `cvs status`|tr '\''='\'' '\''\n'\''|grep "File: "|grep -v "Status: Up-to-date"|sed '\''s/.*\(File:[[:space:]]\{1,\}[^[:space:]]\{1,\} Status: [^[:digit:]]*\)\([\.[:digit:]]\{1,\}\) Repository revision: \([\.[:digit:]]\{1,\}\).*/\1 notafilename\2 -> \3/'\''|sed '\''s/Working revision:[[:space:]]//'\''|sed '\''s/notafilename/	/'\''|sed '\''s/\(Status: \)/	\1/'\''|awk -F'\''\t'\'' '\''{ printf("%- 35s %- 26s %- 10s\n", $1, $2, $3); }'\''|sed '\''s/\([[:digit:]\.]\{1,\}\) -> \1$//'\''|grep --color "Status:[^0-9]*"'
+
+# Neat examples
+alias adders='grep '"'"'^A'"'"' ~/.cvsroot/CVSROOT/history |awk -F\| '"'"'{print($2)}'"'"'|sort|uniq -c|sort -nr'
+alias changers='grep '"'"'^M'"'"' ~/.cvsroot/CVSROOT/history |awk -F\| '"'"'{print($2)}'"'"'|sort|uniq -c|sort -nr'
+
+# Colorize ls
+alias ls='ls -G'
+# Colorize grep
+alias grep='grep --color=auto'
+
+alias randword='perl -e '"'"'open IN, "</usr/share/dict/words";rand($.) < 1 && ($n=$_) while <IN>;print $n'"'"
+alias setmagicword='export MAGICWORD=`randword`'
+alias getmagicword='echo Magic word is $MAGICWORD'
+
+alias insertmagicword='sed -i .sedbak -e '"'"'s/.*printf("[^"]*"); \/\/\/ @TODO: Do not ship magicword./printf("'"'"'$MAGICWORD'"'"'\\n"); \/\/\/ @TODO: Do not ship magicword./'"'"' `grep -l magicword src/*.C`'
+alias teeANDvi='tee build.log ; growlnotify -m "Build finished." ; tail -1 build.log | grep -q "Build complete" || (growlnotify -m "... with errors." && vi -c "norm G" -c "/ error: " -c "/: undefined reference to " -c "norm n" -c "norm 8b" build.log)'
+alias sedback='sed "s|/home/mjerde/|/Users/red/|g"'
+alias xteeANDvi='mv build.log build.log2 ; cat build.log2 |sedback|teeANDvi ; rm -f build.log2'
+
+# Run commands on remote systems
+alias    pcmd='ssh mjerde@jasper.local cd `pwd |sed "s|$HOME/||"` \; '
+alias    hcmd='ssh mjerde@jasper.local cd `pwd |sed "s|$HOME/||"` \; '
+alias   xhcmd='time ssh -X mjerde@jasper.local cd `pwd |sed "s|$HOME/||"` \; '
+
+alias    pgcc='pcmd gcc'
+alias    hgcc='hcmd gcc'
+alias prpcgen='pcmd rpcgen'
+
+alias pmakeproj='pcmd ./makeproj'
+alias xmakeproj='hcmd ./makeproj'
+
+alias     pmake='setmagicword ; insertmagicword ; pmakeproj -opti1 -all                   -v 2>&1 |sedback|teeANDvi ; getmagicword'
+alias    pdmake='setmagicword ; insertmagicword ; pmakeproj -opti1 -all            -debug -v 2>&1 |sedback|teeANDvi ; getmagicword'
+#alias   irdmake='xmakeproj -fpga  -all -option222        -v 2>&1 |sedback|teeANDvi ; getmagicword'
+#alias  irddmake='xmakeproj -fpga  -all -option222 -debug -v 2>&1 |sedback|teeANDvi ; getmagicword'
+alias   irdmake='setmagicword ; insertmagicword ; xhcmd xterm -e buildcmmnd --skipconfigure ; xteeANDvi ; getmagicword'
+
+# Fix userid for klogging
+alias klog='grep "afs.mjerde.net" ~/.netrc|awk '"'"'{print($6)}'"'"'|klog `grep "afs.mjerde.net" ~/.netrc|awk '"'"'{print($4)}'"'"'` -pipe'
+alias jlklog='grep "afs.mjerde.net" ~/.netrc|awk '"'"'{print($6)}'"'"'|ssh mjerde@jasper.local /usr/local/bin/klog `grep "afs.mjerde.net" ~/.netrc|awk '"'"'{print($4)}'"'"'` -pipe'
+
+# VPN
+# PPTP (OS X Lion compatible)
+alias vpnon='rm /tmp/vpnon 2> /dev/null || osascript ~/bin/VPN_Helper.scpt "VPN (PPTP)" connect && touch /tmp/vpnon'
+alias vpnoff='rm /tmp/vpnon 2> /dev/null && osascript ~/bin/VPN_Helper.scpt "VPN (PPTP)" disconnect ; rm /tmp/vpnp* 2> /dev/null'
+alias vpnpush='echo push >> /tmp/vpnpush;if [ 1 -eq $(wc -l /tmp/vpnpush|awk '"'"'{print($1)}'"'"') ];then vpnon;fi'
+alias vpnpop='echo pop >> /tmp/vpnpop;if [ $(wc -l /tmp/vpnpush|awk '"'"'{print($1)}'"'"') -eq $(wc -l /tmp/vpnpop|awk '"'"'{print($1)}'"'"') ];then vpnoff;rm /tmp/vpnp* 2> /dev/null;fi'
+alias vpnflush='vpnoff;rm -rf /tmp/vpnflush 2> /dev/null;mkdir -p /tmp/vpnflush 2> /dev/null;mv /tmp/vpnp* /tmp/vpnflush 2> /dev/null'
+alias vpnunflush='mv /tmp/vpnflush/vpnp* /tmp 2> /dev/null;if [ "$(wc -l /tmp/vpnpush 2> /dev/null|awk '"'"'{print($1)}'"'"')" != "$(wc -l /tmp/vpnpop 2> /dev/null|awk '"'"'{print($1)}'"'"')" ];then vpnoff;fi'
+#alias vpnon='echo'
+#alias vpnoff='echo'
+alias vpnmake='vpnpush ; git push --force buildsys HEAD:master 2>&1 | tee build.log ; vpnpop'
+alias vpnremake='vpnpush ; ssh mark.jerde@$BUILDSERVER "cd build.git/;~/bin/domake clean" 2>&1 | tee build.log ; vpnpop'
+alias vpnammmake='vpnpush ; ssh mark.jerde@$BUILDSERVER "cd build.git/;~/bin/domake amm clean" 2>&1 | tee build.log ; vpnpop'
+alias vpnmakeall='vpnpush ; ssh mark.jerde@$BUILDSERVER "cd build.git/;./makeall" 2>&1 | tee build.log ; vpnpop'
+alias vpnupdate='vpnpush ; git remote update -p ; vpnpop'
+
+alias serialscreen='screen -D -R -S usbserial /dev/tty.usbserial 115200 cs8'
+
+alias gam='git am -s --reject < '
+
+test -s ~/.alias.work && . ~/.alias.work || true
