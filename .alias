@@ -13,7 +13,13 @@ alias adders='grep '"'"'^A'"'"' ~/.cvsroot/CVSROOT/history |awk -F\| '"'"'{print
 alias changers='grep '"'"'^M'"'"' ~/.cvsroot/CVSROOT/history |awk -F\| '"'"'{print($2)}'"'"'|sort|uniq -c|sort -nr'
 
 # Colorize ls
-alias ls='ls -G'
+if ls --version 2> /dev/null | grep -q "ls (GNU coreutils)"
+then
+       alias ls='ls --color=auto'
+else
+       alias ls='ls -G'
+fi
+
 # Colorize grep
 alias grep='grep --color=auto'
 
@@ -67,5 +73,7 @@ alias vpnupdate='vpnpush ; git remote update -p ; vpnpop'
 alias serialscreen='screen -D -R -S usbserial /dev/tty.usbserial 115200 cs8'
 
 alias gam='git am -s --reject < '
+
+alias videos='strings $(ls -tr ~/Desktop/httpGETrunningCapture*|tail -1) |sed -n '"'"'/^GET / p;/^Host: / p'"'"'|grep -B1 "^GET "|awk '"'"'/^GET /{s=$0;next}{print s " "$0}'"'"'|sed '"'"'s|^\(GET .*\) \(Host: .*\)|\2 \1|;s|^Host: |http://|;s| GET /|/|;s/HTTP.*//'"'"'|grep -v " GET "|grep "//.*/"|sed -n '"'"'/\.flv/ p;/\.mkv/ p'"'"''
 
 test -s ~/.alias.work && . ~/.alias.work || true
