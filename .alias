@@ -72,7 +72,18 @@ alias vpnupdate='vpnpush ; git remote update -p ; vpnpop'
 
 alias serialscreen='screen -D -R -S usbserial /dev/tty.usbserial 115200 cs8'
 
+# Git aliases
+alias giru='git remote update -p'
+alias girom='git rebase origin/master'
+alias giro='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`;git rebase origin/$GIBR'
+alias gicm='git checkout master'
 alias gam='git am -s --reject < '
+alias gidw='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`;git diff --color-words origin/$GIBR..$GIBR'
+alias gidww='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`;git diff --color-words=. origin/$GIBR..$GIBR'
+alias gipohm='echo "Pushing HEAD:master to origin!!!";sleep 3;git push origin HEAD:master'
+
+# Cyclingnews update reader
+alias cyclingnews='LASTLINE="";while true; do LINE=$(/opt/local/bin/wget -q -O - http://live.cyclingnews.com/live/entries|sed '"'"'s/^{"standings":.*//;s/.*"body":"//;s/","style".*//;s/<[^>]*>//g;s/&nbsp;//'"'"');echo "STATUS";echo "$LINE";if [ "$LINE" != "$LASTLINE" ]; then say "$LINE";LASTLINE="$LINE";fi;sleep 15;done'
 
 alias videos='strings $(ls -tr ~/Desktop/httpGETrunningCapture*|tail -1) |sed -n '"'"'/^GET / p;/^Host: / p'"'"'|grep -B1 "^GET "|awk '"'"'/^GET /{s=$0;next}{print s " "$0}'"'"'|sed '"'"'s|^\(GET .*\) \(Host: .*\)|\2 \1|;s|^Host: |http://|;s| GET /|/|;s/HTTP.*//'"'"'|grep -v " GET "|grep "//.*/"|sed -n '"'"'/\.flv/ p;/\.mkv/ p'"'"''
 
