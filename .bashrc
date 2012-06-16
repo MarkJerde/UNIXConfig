@@ -1,6 +1,6 @@
-test -s ~/.alias && . ~/.alias || true
-test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
 export PATH=$PATH:/opt/local/bin
+test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
+test -s ~/.alias && . ~/.alias || true
 
 test -s /opt/local/etc/bash_completion.d/git-completion && . /opt/local/etc/bash_completion.d/git-completion || true
 
