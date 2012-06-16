@@ -137,7 +137,7 @@ augroup restoreLine
 augroup END
 
 
-let $NO_TAB_files = "*/PROJ/*,*/projcvs/*,*/thatproject.cscvs/*,*/git/sandbox/*,*/prj.git/*"
+let $NO_TAB_files = "*/PROJ/*,*/projcvs/*,*/thatproject.cscvs/*,*/git/sandbox/*,*/prj.git/*,*/rxv2400server/webControl*"
 
 augroup ibis
   " Remove all ibis autocommands
@@ -286,4 +286,7 @@ augroup END
 highlight WhitespaceErrors term=standout ctermbg=red guibg=red
 match WhitespaceErrors /\(\s\+$\|[^\t]\zs\t\+\|^\t*\zs \+\)/
 match WhitespaceErrors /\(\s\+\%#\@<!$\|[^\t]\zs\t\+\|^\t*\zs \+\)/
+
+let @q='1Gjviwyww:norm 0G%'
+let @z='viwyww:read !~/bin/scanSortTagger.pl 0.pdf debug'
 
