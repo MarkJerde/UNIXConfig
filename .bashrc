@@ -2,6 +2,19 @@ export PATH=$PATH:/opt/local/bin
 test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
 test -s ~/.alias && . ~/.alias || true
 
+# Mono Development:
+export MONO_IOMAP=all
+export MONO_LOG_MASK=all # asm,dll,cfg,type,gc
+export MONO_LOG_LEVEL= # debug
+
+# Also for Mono but not exclusive:
+export DYLD_FALLBACK_LIBRARY_PATH=${DYLD_FALLBACK_LIBRARY_PATH:=${HOME}/lib:/usr/local/lib:/lib:/usr/lib}
+export DYLD_FALLBACK_LIBRARY_PATH=$DYLD_FALLBACK_LIBRARY_PATH:/opt/local/lib
+
+export SSH_ASKPASS=~/bin/get-ssh-password.sh
+
+set -o emacs
+bind '"\C-xv": vi-editing-mode'
 set -o vi
 
 test -s /opt/local/etc/bash_completion.d/git-completion && . /opt/local/etc/bash_completion.d/git-completion || true
