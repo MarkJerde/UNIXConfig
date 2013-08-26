@@ -283,10 +283,51 @@ augroup m2remake
 	autocmd BufRead m2remake.out norm n
 augroup END
 
+augroup pcap
+	autocmd BufRead *.pcap map #3 dd/POSTiPI,cfwjIv/HTTPn3ldwp:wqk<F3>
+	autocmd BufRead *.pcap map <leader>cf :sp <cfile><cr>
+	autocmd BufRead *.pcap let mapleader = ","
+augroup END
+
 highlight WhitespaceErrors term=standout ctermbg=red guibg=red
 match WhitespaceErrors /\(\s\+$\|[^\t]\zs\t\+\|^\t*\zs \+\)/
 match WhitespaceErrors /\(\s\+\%#\@<!$\|[^\t]\zs\t\+\|^\t*\zs \+\)/
 
 let @q='1Gjviwyww:norm 0G%'
 let @z='viwyww:read !~/bin/scanSortTagger.pl 0.pdf debug'
+
+function! DoPrettyXML()
+  " save the filetype so we can restore it later
+  let l:origft = &ft
+  set ft=
+  " delete the xml header if it exists. This will
+  " permit us to surround the document with fake tags
+  " without creating invalid xml.
+  1s/<?xml .*?>//e
+  " insert fake tags around the entire document.
+  " This will permit us to pretty-format excerpts of
+  " XML that may contain multiple top-level elements.
+  0put ='<PrettyXML>'
+  $put ='</PrettyXML>'
+  silent %!xmllint --format -
+  " xmllint will insert an <?xml?> header. it's easy enough to delete
+  " if you don't want it.
+  " delete the fake tags
+  2d
+  $d
+  " restore the 'normal' indentation, which is one extra level
+  " too deep due to the extra tags we wrapped around the document.
+  silent %<
+  " back to home
+  1
+  " restore the filetype
+  exe "set ft=" . l:origft
+endfunction
+command! PrettyXML call DoPrettyXML()
+
+au FileType cs set omnifunc=syntaxcomplete#Complete
+au FileType cs set foldmethod=marker
+au FileType cs set foldmarker={,}
+au FileType cs set foldtext=substitute(getline(v:foldstart),'{.*','{...}',)
+au FileType cs set foldlevelstart=2 
 
