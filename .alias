@@ -75,16 +75,47 @@ alias serialscreen='screen -D -R -S usbserial /dev/tty.usbserial 115200 cs8'
 # Git aliases
 alias giru='git remote update -p'
 alias girom='git rebase origin/master'
-alias giro='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`;git rebase origin/$GIBR'
+alias gibr='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`'
+alias girbr='gibr;GIRBR="$GIBR~10";git remote -v|grep -q "^origin	" && GIRBR="origin/$GIBR"';
+alias giro='girbr;git rebase $GIRBR'
+alias giruo='giru && giro'
 alias gicm='git checkout master'
-alias gam='git am -s --reject < '
-alias gidw='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`;git diff --color-words origin/$GIBR..$GIBR'
-alias gidww='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`;git diff --color-words=. origin/$GIBR..$GIBR'
+alias gam='git am --reject < '
+alias gams='git am -s --reject < '
+alias gidw='girbr;git diff --color-words $GIRBR..$GIBR'
+alias gidww='girbr;git diff --color-words=. $GIRBR..$GIBR'
+alias gifp='girbr;git format-patch -o ~/Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"` $GIRBR'
+alias gifpr='gibr;git format-patch -o ~/Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`'
 alias gipohm='echo "Pushing HEAD:master to origin!!!";sleep 3;git push origin HEAD:master'
+alias gls='git log --stat'
+alias gilo='girbr;git log $GIRBR..$GIBR'
+alias giri='girbr;git rebase --interactive $GIRBR --autosquash'
 
 # Cyclingnews update reader
 alias cyclingnews='LASTLINE="";while true; do LINE=$(/opt/local/bin/wget -q -O - http://live.cyclingnews.com/live/entries|sed '"'"'s/^{"standings":.*//;s/.*"body":"//;s/","style".*//;s/<[^>]*>//g;s/&nbsp;//'"'"');echo "STATUS";echo "$LINE";if [ "$LINE" != "$LASTLINE" ]; then say "$LINE";LASTLINE="$LINE";fi;sleep 15;done'
+alias wooter='LASTTITLE="";while true; do WOOT=$(/opt/local/bin/wget -q -O - http://www.mywoot.net/woot.xml);TITLE=$(echo "$WOOT"|sed -n '"'"'s/&quot;/"/g; s/&amp;/&/g; s/.*<title>\([aeiouyAEIOUY].*\)<\/title>.*/An \1/ p; s/.*<title>\([^aeiouyAEIOUY].*\)<\/title>.*/A \1/ p'"'"');PRICE=$(echo "$WOOT"|sed -n '"'"'s/.*<woot:price>\(.*\)<\/woot:price>.*/\1/ p'"'"');REFRESH=$(echo "$WOOT"|sed -n '"'"'s/.*<refresh>\(.*\)<\/refresh>.*/\1/ p'"'"');if [ "$TITLE" != "$LASTTITLE" ]; then echo `date` " - $TITLE for $PRICE";say "Would you like a $TITLE for $PRICE from woot dot com?";LASTTITLE="$TITLE";fi;sleep $REFRESH;done'
+alias 925='wget -q -O - http://9to5mac.com|perl -p -e '"'"'print "\033[0;m"; if (s/.*<span class="[^"]*title"(>| title=)//) { s/>{0,1}<\/span>.*//; s/^"//; s/"$//; s/^/\n/; print "\033[0;33m"; s/\n$/ / } elsif ( s/.*<div class="timestamp">(.*)<\/div>.*/$1/ ) { print "\033[0;32m"; s/\n$// } else { $_ = "" } s/&quot;/"/g; s/&#8217;/\x27/g; s/&#(822[01]|039);/"/g; s/^\s*$//g; END { print "\n" }'"'"''
+alias 9to5='wget -q -O - http://9to5mac.com|perl -p -e '"'"'print "\033[0;m"; if (s/.*<span class="[^"]*title"(>| title=)//) { s/>{0,1}<\/span>.*//; s/^"//; s/"$//; s/^/\n/; print "\033[0;33m" } elsif ( s/.*<div class="timestamp">(.*)<\/div>.*/$1/ ) { $_ = "\t$_"; print "\033[0;32m" } elsif ( s/^\s*<p>(.*)<\/p>\s*$/$1/ ) { s/<[^>]*>//g; s/(.{1,69}\S|\S+)\s+/$1\n/g; s/\n(.*)$/ $1/; s/^/\t/gm; $_ = "\t$_\n" } else { $_ = "" } s/&quot;/"/g; s/&#8217;/\x27/g; s/&#(822[01]|039);/"/g; s/^\s*$//g'"'"''
 
 alias videos='strings $(ls -tr ~/Desktop/httpGETrunningCapture*|tail -1) |sed -n '"'"'/^GET / p;/^Host: / p'"'"'|grep -B1 "^GET "|awk '"'"'/^GET /{s=$0;next}{print s " "$0}'"'"'|sed '"'"'s|^\(GET .*\) \(Host: .*\)|\2 \1|;s|^Host: |http://|;s| GET /|/|;s/HTTP.*//'"'"'|grep -v " GET "|grep "//.*/"|sed -n '"'"'/\.flv/ p;/\.mkv/ p'"'"''
+
+# GTV-related stuff
+alias adb-route='sudo route -n add 192.168.3.0/24 192.168.1.2'
+alias adb-connect='/Users/mjerde/Developer/android-sdk-macosx/platform-tools/adb connect 192.168.3.32'
+alias adb-shell='/Users/mjerde/Developer/android-sdk-macosx/platform-tools/adb shell'
+alias adb-logcat='/Users/mjerde/Developer/android-sdk-macosx/platform-tools/adb logcat -b main'
+alias adb='/Users/mjerde/Developer/android-sdk-macosx/platform-tools/adb'
+alias ddx='java -jar ~/Developer/GoogleTV/Code/Community/ddx1.18.jar'
+
+# iWeb mangles some URLs when the site name includes a port number.  Here, the
+# port number involved is 13780.  This fixes the output of iWeb.
+alias fixiweb='find Sites -type f \( \! -name Photos.js \) -exec perl -p -i -e '"'"'s/\%3a13780/:13780/gi'"'"' {} \;'
+
+alias fixpptxtrans='for i in *.pptx;do echo converting "$i";mkdir pptxFadeTemp;pushd pptxFadeTemp;unzip ../"$i";find . -name \*.xml -exec sed -i '"''"' -e'"'"'s|<\s*p:transition\s*>\s*<[^>]*>\s*<\s*/p:transition\s*>|<p:transition><p:fade thruBlk="0"/></p:transition>|'"'"' {} \; ;zip -u ../"$i";popd; rm -rf pptxFadeTemp;echo Done converting.;done'
+alias fixpptxtrans='for i in *.pptx;do echo converting "$i";PPTXLOC=$(pptx_open "$i") && export PPTXLOC && pptx_transitions_to_fade && sleep 10 && pptx_close;echo Done converting.;done'
+
+alias sametime2adium='xmllint --format - |perl -n -e '"'"'BEGIN{print "<?xml version=\"1.0\"?>\n"} use POSIX qw(strftime); if ( s/.*<meta name="sametime:username" content="// ) { s/\s*".*//; chomp; $user=$_; print "<chat xmlns=\"http://purl.org/net/ulf/ns/0.4-02\" account=\"$user\" service=\"Sametime\">\n" } elsif ( s/.*<meta name="sametime:creationTime" content="// ) { s/\s*".*//; chomp; s/(....)(..)(..)-(..)(..)(..) \((.*)(\d\d)\)/$1-$2-$3T$4:$5:$6$7:$8/; $tzo="$7:$8"; $creationTime=$_ } elsif ( s/.*<meta name="sametime:initiator" content="// ) { s/\s*".*//; chomp; $initiator=$_; print "<event type=\"windowOpened\" sender=\"$initiator\" time=\"$creationTime\"/>\n" } if ( m/<div class="messageBlock" username=\"(\S+)\" timestamp=\"(\d+)\d\d\d\">/) { $initiator=$1; $timestamp=strftime("%Y-%m-%dT%H:%M:%S",localtime($2)).$tzo } if ( m/<div class=\"message\"/ ) { print "<message sender=\"$initiator\" time=\"$timestamp\" alias=\"$initiator\">\n"; while ( !m/<\/div>/ ) {print; last unless ( defined($_ = <STDIN>) )} print; print "</message>\n"; } END{print "</chat>\n"}'"'"''
+
+alias gists='mkdir -p ~/Documents/Gists;pushd ~/Documents/Gists;for gist in $(/opt/local/bin/wget -q --no-check-certificate -O - https://api.github.com/users/MarkJerde/gists|grep git_pull_url|sed '"'"'s/",.*//'"'"'|sed '"'"'s/.*"//;s/https:\/\/gist\.github\.com\///;s/\.git//'"'"');do if [ ! -d $gist ] ; then git clone https://gist.github.com/$gist.git ; fi;done;popd'
 
 test -s ~/.alias.work && . ~/.alias.work || true
