@@ -25,6 +25,19 @@ editmode() {
 	set -o | grep 'emacs.*on' >/dev/null 2>&1 && echo -ne '\033[32mE\033[39m' || echo -ne '\033[31mV\033[39m'
 }
 
+pidtree() {
+	CUR=$$
+	if [ ! -z "$1" ]
+	then
+		CUR=$1
+	fi
+	while [ "0" != "$CUR" ]
+	do
+		ps -p $CUR -o pid,user,command|tail -1
+		CUR=$(ps uxwwww -o ppid -p $CUR|sed 's/.* //'|tail -1)
+	done
+}
+
 # Show character if VPN is ready
 get_vpn_status() {
   if [ -f /tmp/vpn.ready ]
@@ -123,6 +136,19 @@ git_full_status ()
     git_pending_push "$gso"
     git_pending_commit "$gso"
   fi
+}
+
+dufind() {
+	for i in `ls -a */*/Users/mjerde/"$1"|sort |uniq |grep -v "^\.*$"|grep -v "Macintosh HD/Users"|grep -v "^ *$"`;do du -ks */*/Users/mjerde/"$1"/"$i";done|sort -n
+}
+
+tmdel() {
+	for i in */*/Users/mjerde/"$1";do if [ -d "$i" ];then echo ""|chmod -R -E "$i";sudo rm -rfv "$i";fi;done
+}
+
+md5dir ()
+{
+	echo `find "$1" -type f -exec md5 "{}" \; |sed 's/.* = //'| sort| md5` "$1"
 }
 
 # Basic prompt with Git branch name.
