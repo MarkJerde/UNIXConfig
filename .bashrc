@@ -16,8 +16,14 @@ export SSH_ASKPASS=~/bin/get-ssh-password.sh
 set -o emacs
 bind '"\C-xv": vi-editing-mode'
 set -o vi
+bind '"\C-xp": emacs-editing-mode'
+set -o emacs
 
 test -s /opt/local/etc/bash_completion.d/git-completion && . /opt/local/etc/bash_completion.d/git-completion || true
+
+editmode() {
+	set -o | grep 'emacs.*on' >/dev/null 2>&1 && echo -ne '\033[32mE\033[39m' || echo -ne '\033[31mV\033[39m'
+}
 
 # Show character if VPN is ready
 get_vpn_status() {
@@ -124,7 +130,7 @@ PS1='\h:\W$(__git_ps1 "(%s)") \u\$ '
 # Basic prompt with Git branch name and colorful icons.
 PS1='\h:\W$(git_prompt_info)\[\e[1;34m\]$(git_pending_rebase)\[\e[0m\]\[\e[1;33m\]$(git_pending_push)\[\e[0m\]\[\e[1;31m\]$(git_pending_commit)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]\u\$ '
 # Multi-line prompt with Git branch name and colorful icons.
-PS1='\[\e[1;33m\]あなたのお母さんはハムスターであり、あなたの父親は、エルダーベリーのワカサギ。\[\e[0m\]
+PS1='$(editmode)\[\e[1;33m\]あなたのお母さんはハムスターであり、あなたの父親は、エルダーベリーのワカサギ。\[\e[0m\]
 \h:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
 \u\$ '
 
