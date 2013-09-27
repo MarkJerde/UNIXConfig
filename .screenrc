@@ -1,0 +1,25 @@
+#set the control character to backtick, and set backtick-backtick to pass a backtick to the screen
+escape ``
+
+#get titles from bash
+shelltitle "> |bash"
+
+#change the hardstatus settings to give an window list at the bottom of the
+#screen, with the time and date and with the current window highlighted
+hardstatus alwayslastline
+#hardstatus string '%{= mK}%-Lw%{= KW}%50>%n%f* %t%{= mK}%+Lw%< %{= kG}%-=%D %d %M %Y %c:%s%{-}'
+#hardstatus string '%{= Gk}%-Lw%{= kG}%50>>%n%f* %t%{= Gk}%+Lw%< %{= kG}%-=%D %d %M %Y %c:%s%{-}'
+# Clocks are great, but the network here sucks too much for seconds resolution.
+hardstatus string '%{= Gk}%-Lw%{= kG}%50>>%n%f* %t%{= Gk}%+Lw%< %{= kG}%-=%D %d %M %Y %c%{-}'
+
+#detach after one half hour idle
+#this is useful for running looping commands that check attach/detach status to query activity
+idle 1800 detach
+
+#autoruns
+#screen -t Status 0 bash -c "source ~/.bashrc;screenstatus"
+#screen -t Performance 9 bash -c "source ~/.bashrc;screengraphs"
+#screen -t Status 0 bash -c "source ~/.bashrc;keeplogged"
+#screen -t bridge 1 bash -c "source ~/.bashrc;bridge"
+#screen -t fixxer 2 bash -c "source ~/.bashrc;fixxer"
+
