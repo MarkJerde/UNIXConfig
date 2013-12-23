@@ -331,3 +331,11 @@ au FileType cs set foldmarker={,}
 au FileType cs set foldtext=substitute(getline(v:foldstart),'{.*','{...}',)
 au FileType cs set foldlevelstart=2 
 
+"" Fix home and end in Terminal.app
+"" end
+"map  $
+"imap  $
+"" home
+"map  g0
+"imap  g0
+
