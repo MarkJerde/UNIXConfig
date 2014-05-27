@@ -5,6 +5,8 @@ export PATH=/opt/local/bin:$PATH
 test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
 test -s ~/.alias && . ~/.alias || true
 
+export EDITOR=vi
+
 # For git svn / Mavericks compatibility:
 #export PATH="/Applications/Xcode.app/Contents/Developer/usr/libexec/git-core":$PATH
 #export PATH="/Applications/Xcode.app/Contents/Developer/usr/bin":$PATH
