@@ -2,6 +2,10 @@ export PATH=/opt/local/bin:$PATH
 test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
 test -s ~/.alias && . ~/.alias || true
 
+# For git svn / Mavericks compatibility:
+#export PATH="/Applications/Xcode.app/Contents/Developer/usr/libexec/git-core":$PATH
+#export PATH="/Applications/Xcode.app/Contents/Developer/usr/bin":$PATH
+
 # Mono Development:
 export MONO_IOMAP=all
 export MONO_LOG_MASK=all # asm,dll,cfg,type,gc
@@ -19,7 +23,12 @@ set -o vi
 bind '"\C-xp": emacs-editing-mode'
 set -o emacs
 
-test -s /opt/local/etc/bash_completion.d/git-completion && . /opt/local/etc/bash_completion.d/git-completion || true
+test -s /usr/share/git-core/git-prompt.sh && . /usr/share/git-core/git-prompt.sh || true
+test -s /opt/local/share/git-core/contrib/completion/git-prompt.sh && . /opt/local/share/git-core/contrib/completion/git-prompt.sh || true
+test -s /opt/local/etc/bash_completion.d/git-prompt.sh && . /opt/local/etc/bash_completion.d/git-prompt.sh || true
+test -s /usr/share/git-core/git-completion.bash && . /usr/share/git-core/git-completion.bash || true
+test -s /opt/local/share/git-core/contrib/completion/git-completion.bash && . /opt/local/share/git-core/contrib/completion/git-completion.bash || true
+test -s /opt/local/etc/bash_completion.d/git-completion.bash && . /opt/local/etc/bash_completion.d/git-completion.bash || true
 
 editmode() {
 	set -o | grep 'emacs.*on' >/dev/null 2>&1 && echo -ne '\033[32mE\033[39m' || echo -ne '\033[31mV\033[39m'
@@ -125,9 +134,16 @@ git_pending_rebase() {
   fi
 }
 
+fstype ()
+{
+	mount |grep "^$(df .|head -2|tail -1|cut -f 1 -d ' ')"|sed 's/.*(//;s/,.*//'
+}
+
 # Reduce to one call to __git_ps1 and one to git status -uno for performance.
 git_full_status ()
 {
+  # This stuff is slow over vboxsf, smbfs, and nfs, so skip it to save 2 seconds per prompt.
+  fstype|grep -v vboxsf | grep -v smbfs | grep -v nfs | grep -q "." || return
   branch_prompt=$(__git_ps1)
   if [ -n "$branch_prompt" ]; then
     gso=$(git status -uno)
