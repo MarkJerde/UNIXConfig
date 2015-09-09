@@ -14,7 +14,7 @@ echo .vimrc
 		echo Retaining default.
 		mv "$TO/$file" "$TO/$file.default"
 	fi
-	ln -s "$TO/$file" "$FROM/$file"
+	ln -s "$FROM/$file" "$TO/$file"
 	ls -l "$TO/$file"
 done
 
