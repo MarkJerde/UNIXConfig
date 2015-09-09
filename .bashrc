@@ -175,6 +175,80 @@ picture ()
 	open ~/Downloads/picture.html
 }
 
+# Traverse test results ("ms") directories.
+export LMSDIR="$HOME/Data/Test Results"
+lms ()
+{
+	export lums="$LMSDIR/$(ls -tr "$LMSDIR" | tail -1)"
+	wlmsclast=0
+	lums
+}
+
+plms ()
+{
+	lums="$(echo "$lums"|sed 's/.*\///g')"
+	export lums="$LMSDIR/$(ls -tr "$LMSDIR" | sed '/'"$lums"'/,$ d' | tail -1)"
+	wlmsclast=0
+	lums
+}
+
+nlms ()
+{
+	lums="$(echo "$lums"|sed 's/.*\///g')"
+	export lums="$LMSDIR/$(ls -tr "$LMSDIR" | sed '1,/'"$lums"'/ d' | head -1)"
+	wlmsclast=0
+	lums
+}
+
+lums ()
+{
+	echo "$lums"
+}
+
+lmsc ()
+{
+	export lumsc="$lums/$(ls -tr "$lums" | grep -v [^0-9] | sort -n | tail -1)"
+	lumsc
+}
+
+lumsc ()
+{
+	echo "$lumsc"
+}
+
+wlmsc ()
+{
+	olumsc="$(lumsc)"
+	adj=100
+	start=$(date "+%s")
+	if [ "" != "$wlmsclast" ]
+	then
+		echo -n "_($wlmsclast)" 1>&2
+		sleep $wlmsclast
+		adj=75
+	fi
+	lmsc > /dev/null
+	while [ "$(lumsc)" == "$olumsc" ]
+	do
+		echo -n "." 1>&2
+		sleep 1
+		lmsc > /dev/null
+		adj=100
+	done
+	echo 1>&2
+	wlmsclast=$(date "+%s")
+	wlmsclast=$((wlmsclast-$start))
+	wlmsclast=$((wlmsclast*$adj/100))
+	echo wlmsclast is $wlmsclast 1>&2
+	lumsc
+}
+
+olms ()
+{
+	echo "$lumsc"
+	open "$lumsc"
+}
+
 # Translate Tour de France coverage to be correctly pronounced by the 'say' command.
 tdfspeak ()
 {
