@@ -151,6 +151,17 @@ md5dir ()
 	echo `find "$1" -type f -exec md5 "{}" \; |sed 's/.* = //'| sort| md5` "$1"
 }
 
+# Translate Tour de France coverage to be correctly pronounced by the 'say' command.
+tdfspeak ()
+{
+	if [ -e ~/bin/tdfspeak.sh ]
+	then
+		~/bin/tdfspeak.sh
+	else
+		cat
+	fi
+}
+
 # Basic prompt with Git branch name.
 PS1='\h:\W$(__git_ps1 "(%s)") \u\$ '
 # Basic prompt with Git branch name and colorful icons.
