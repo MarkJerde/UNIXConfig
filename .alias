@@ -137,4 +137,8 @@ alias sametime2adium='xmllint --format - |perl -n -e '"'"'BEGIN{print "<?xml ver
 
 alias gists='mkdir -p ~/Documents/Gists;pushd ~/Documents/Gists;for gist in $(/opt/local/bin/wget -q --no-check-certificate -O - https://api.github.com/users/MarkJerde/gists|grep git_pull_url|sed '"'"'s/",.*//'"'"'|sed '"'"'s/.*"//;s/https:\/\/gist\.github\.com\///;s/\.git//'"'"');do if [ ! -d $gist ] ; then git clone https://gist.github.com/$gist.git ; fi;done;popd'
 
+# Aliases to start and stop Synergy
+alias syns='/Applications/Synergy.app/Contents/MacOS/synergys --crypto-pass XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+alias synk='ps auxwww|grep -q [s]ynergys && kill $(ps auxwww|grep [s]ynergys|tail -1|awk '"'"'{print $2}'"'"');ps auxwww|grep -q [s]ynergys && sleep 5;ps auxwww|grep -q [s]ynergys && kill -9 $(ps auxwww|grep [s]ynergys|tail -1|awk '"'"'{print $2}'"'"');ps auxwww|grep -q [s]ynergys && sleep 5;ps auxwww|grep -q [s]ynergys && echo "I'"'"'m not dead yet."'
+
 test -s ~/.alias.work && . ~/.alias.work || true
