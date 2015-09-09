@@ -186,13 +186,32 @@ tdfspeak ()
 	fi
 }
 
+SSHCOLOR=0
+env | grep -q SSH_CONNECTION && export SSHCOLOR=31
+
+PSDELIM_jp='あなたのお母さんはハムスターであり、あなたの父親は、エルダーベリーのワカサギ。'
+PSDELIM_gr='Η μητέρα σου ήταν ένα χάμστερ και ο πατέρας σου μύριζε κουφοξυλιάς!'
+PSDELIM_marathi='तुम्हारी माँ एक हम्सटर था और अपने पिता बड़े बेर के गलाना'
+PSDELIM_hindi='तुम्हारी माँ एक हम्सटर था और अपने पिता बड़े बेर के गलाना'
+PSDELIM_thai='แม่ของหนูแฮมสเตอร์ของคุณaและคุณพ่อของคุณหลอมเหลวของพี่เบอร์รี่'
+PSDELIM_lang="jp"
+psdelim() {
+	PSDELIM_var=PSDELIM_$PSDELIM_lang
+	echo -n "${!PSDELIM_var}"
+}
+alias psLjp='export PSDELIM_lang="jp"'
+alias psLgr='export PSDELIM_lang="gr"'
+alias psLmarathi='export PSDELIM_lang="marathi"'
+alias psLhindi='export PSDELIM_lang="hindi"'
+alias psLthai='export PSDELIM_lang="thai"'
+
 # Basic prompt with Git branch name.
 PS1='\h:\W$(__git_ps1 "(%s)") \u\$ '
 # Basic prompt with Git branch name and colorful icons.
 PS1='\h:\W$(git_prompt_info)\[\e[1;34m\]$(git_pending_rebase)\[\e[0m\]\[\e[1;33m\]$(git_pending_push)\[\e[0m\]\[\e[1;31m\]$(git_pending_commit)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]\u\$ '
 # Multi-line prompt with Git branch name and colorful icons.
-PS1='$(editmode)\[\e[1;33m\]あなたのお母さんはハムスターであり、あなたの父親は、エルダーベリーのワカサギ。\[\e[0m\]
-\h:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
+\[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
 \u\$ '
 
 test -s ~/.bashrc.work && . ~/.bashrc.work || true
