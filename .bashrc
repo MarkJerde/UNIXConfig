@@ -1,4 +1,4 @@
-export PATH=$PATH:/opt/local/bin
+export PATH=/opt/local/bin:$PATH
 test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
 test -s ~/.alias && . ~/.alias || true
 
