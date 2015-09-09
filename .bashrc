@@ -1,3 +1,6 @@
+# Source the default .bashrc if present.
+test -s ~/.bashrc.default && . ~/.bashrc.default || true
+
 export PATH=/opt/local/bin:$PATH
 test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
 test -s ~/.alias && . ~/.alias || true
