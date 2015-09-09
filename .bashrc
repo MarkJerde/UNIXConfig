@@ -167,6 +167,14 @@ md5dir ()
 	echo `find "$1" -type f -exec md5 "{}" \; |sed 's/.* = //'| sort| md5` "$1"
 }
 
+picture ()
+{
+	first=$1
+	last=$2
+	curl http://www.linkedin.com/pub/dir/\?first=$first\&last=$last\&search=Search -o -|sed -n '1,/[Hh][Hg][Ss][Tt]/ p'|grep "img "|grep $last|sed 's/height="[0-9]*"//'|sed 's/width="[0-9]*"//' > ~/Downloads/picture.html 
+	open ~/Downloads/picture.html
+}
+
 # Translate Tour de France coverage to be correctly pronounced by the 'say' command.
 tdfspeak ()
 {
