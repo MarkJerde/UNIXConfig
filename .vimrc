@@ -147,8 +147,8 @@ augroup ibis
   autocmd BufNewFile,BufRead $NO_TAB_files	set expandtab " Do not write tab character.  Spaces instead.
   autocmd BufNewFile,BufRead $NO_TAB_files	set softtabstop=4 " Still let backspace work as though they were tabs.
   autocmd BufNewFile,BufRead $NO_TAB_files match WhitespaceErrors /\(\s\+$\|\t\)/
-  autocmd BufNewFile,BufRead $NO_TAB_files map z :!open https://viewvcserver.local/scm/viewvc.php%:p:s/.*thatproject\.cscvs//?root=thatproject\&view=log
-  autocmd BufNewFile,BufRead $NO_TAB_files map Z :let @a = system("open https://viewvcserver.local/scm/viewvc.php" . fnamemodify(@%,":p:s/.*thatproject\.cscvs//") . '?root=thatproject\&view=annotate#l' . line("."))
+  "autocmd BufNewFile,BufRead $NO_TAB_files map z :!open https://viewvcserver.local/scm/viewvc.php%:p:s/.*thatproject\.cscvs//?root=thatproject\&view=log
+  "autocmd BufNewFile,BufRead $NO_TAB_files map Z :let @a = system("open https://viewvcserver.local/scm/viewvc.php" . fnamemodify(@%,":p:s/.*thatproject\.cscvs//") . '?root=thatproject\&view=annotate#l' . line("."))
 
 augroup END
 
