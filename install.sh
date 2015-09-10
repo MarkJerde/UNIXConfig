@@ -5,6 +5,7 @@ TO="$HOME"
 for file in $(
 echo .alias
 echo .bashrc
+echo .bash_profile
 echo .screenrc
 echo .vimrc
 ) ; do
