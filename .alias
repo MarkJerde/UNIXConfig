@@ -104,6 +104,8 @@ alias gifpr='gibr;git format-patch -o ~/Developer/Patch\ Store/`date +"%Y-%m-%d_
 alias gifst='target=Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`; for file in $(git status|grep "^#[ 	]*modified: "|sed '"'"'s/.*modified:  *//'"'"');do dir=$(echo "$file"|sed '"'"'s/\(.*\)\/.*/\1/'"'"');mkdir -p ~/"$target/$dir";cp -a "$file" ~/"$target/$file";done'
 alias gipohm='gifindpushpendingfiletypechanges && echo "Pushing HEAD:master to origin!!!" && sleep 3 && git push origin HEAD:master'
 alias gls='git log --stat'
+alias gcs='git commit --no-edit --squash'
+alias gne='git revert --no-edit'
 alias gilo='girbr;git log $GIRBR..$GIBR'
 alias giri='girbr;git rebase --interactive $GIRBR --autosquash'
 alias gifindfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC ]; then mv $GFTC $GFTC.old; else echo > $GFTC.old;fi;for i in $(git status|grep "modified:"|sed "s/.*modified: *//"|grep -v " ");do DIFF=$(diff <(git show origin/master:"$i"|file -) <(cat "$i"|file -));RES=$?;if [ 0 != $RES ];then grep -q "^$i$" $GFTC.old;RES=$?;if [ 0 != $RES ]; then echo "$i";echo "$DIFF";echo "#$i" >> $GFTC;PROBLEM="Problems detected.  Uncomment in $GFTC to override.";fi;fi;done;echo $PROBLEM|grep "Problems detected.";echo $?|grep -qv "^0$"'
