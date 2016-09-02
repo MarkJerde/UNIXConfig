@@ -146,4 +146,11 @@ alias gists='mkdir -p ~/Documents/Gists;pushd ~/Documents/Gists;for gist in $(/o
 alias syns='/Applications/Synergy.app/Contents/MacOS/synergys --crypto-pass XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
 alias synk='ps auxwww|grep -q [s]ynergys && kill $(ps auxwww|grep [s]ynergys|tail -1|awk '"'"'{print $2}'"'"');ps auxwww|grep -q [s]ynergys && sleep 5;ps auxwww|grep -q [s]ynergys && kill -9 $(ps auxwww|grep [s]ynergys|tail -1|awk '"'"'{print $2}'"'"');ps auxwww|grep -q [s]ynergys && sleep 5;ps auxwww|grep -q [s]ynergys && echo "I'"'"'m not dead yet."'
 
+# Find C# files in the current directory and list other C# files in the same
+# directory that contain that file's extensionless name.
+alias codetreef='for i in *.cs;do i=$(echo $i|sed '"'"'s/.cs//'"'"');echo $i:;grep -l $i *.cs|grep -v $i.cs|sed '"'"'s/^/  /'"'"';done'
+# Find C# files in the current directory for which no other C# files in the
+# same directory that contain that file's extensionless name.
+alias ct_heads='for i in $(echo *.cs|sed '"'"'s/\.cs//g'"'"');do echo $(grep -l $i *.cs|grep -v $i.cs|wc -l) $i|grep "^0"|sed '"'"'s/^0 //'"'"';done'
+
 test -s ~/.alias.work && . ~/.alias.work || true
