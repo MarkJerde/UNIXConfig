@@ -271,6 +271,11 @@ tdfspeak ()
 	fi
 }
 
+open ()
+{
+  readlink -f "$1" | sed 's|/media/sf_|"C:\\Documents and Settings\\|;s|/|\\|;s/$/"/' > ~/XP/opencmd.bat
+}
+
 SSHCOLOR=0
 env | grep -q SSH_CONNECTION && export SSHCOLOR=31
 
