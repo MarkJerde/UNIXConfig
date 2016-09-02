@@ -102,10 +102,13 @@ alias gifp='girbr;DIR=~/Developer/Patch\ Store;NAME=`date +"%Y-%m-%d_%H-%M-%S"`;
 alias gifpr='gibr;git format-patch -o ~/Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`'
 # git format stash.  Similar to the gifp Patch Store, but stashing unstaged changes without changing the local tree.
 alias gifst='target=Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`; for file in $(git status|grep "^#[ 	]*modified: "|sed '"'"'s/.*modified:  *//'"'"');do dir=$(echo "$file"|sed '"'"'s/\(.*\)\/.*/\1/'"'"');mkdir -p ~/"$target/$dir";cp -a "$file" ~/"$target/$file";done'
-alias gipohm='echo "Pushing HEAD:master to origin!!!";sleep 3;git push origin HEAD:master'
+alias gipohm='gifindpushpendingfiletypechanges && echo "Pushing HEAD:master to origin!!!" && sleep 3 && git push origin HEAD:master'
 alias gls='git log --stat'
 alias gilo='girbr;git log $GIRBR..$GIBR'
 alias giri='girbr;git rebase --interactive $GIRBR --autosquash'
+alias gifindfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC ]; then mv $GFTC $GFTC.old; else echo > $GFTC.old;fi;for i in $(git status|grep "modified:"|sed "s/.*modified: *//"|grep -v " ");do DIFF=$(diff <(git show origin/master:"$i"|file -) <(cat "$i"|file -));RES=$?;if [ 0 != $RES ];then grep -q "^$i$" $GFTC.old;RES=$?;if [ 0 != $RES ]; then echo "$i";echo "$DIFF";echo "#$i" >> $GFTC;PROBLEM="Problems detected.  Uncomment in $GFTC to override.";fi;fi;done;echo $PROBLEM|grep "Problems detected.";echo $?|grep -qv "^0$"'
+alias gifindpushpendingfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC ]; then mv $GFTC $GFTC.old; else echo > $GFTC.old;fi;for i in $(git log origin/master..master --name-only --pretty="format:" | sort | uniq|grep -v " ");do DIFF=$(diff <(git show origin/master:"$i" 2> /dev/null|file -) <(git show HEAD:"$i" 2> /dev/null|file -));RES=$?;if [ 0 != $RES ];then echo "$DIFF" |grep -q "^[<>] /dev/stdin: no read permission";if [ 0 == $? ];then RES=0;fi;fi; if [ 0 != $RES ];then grep -q "^$i$" $GFTC.old;RES=$?;if [ 0 != $RES ]; then echo "$i";echo "$DIFF";echo "#$i" >> $GFTC;PROBLEM="Problems detected.  Uncomment in $GFTC to override.";fi;fi;done;echo $PROBLEM|grep "Problems detected.";echo $?|grep -qv "^0$"'
+alias gico='gifindfiletypechanges && git commit'
 
 # Cyclingnews update reader
 alias cyclingnews='LASTLINE="";while true; do LINE=$(/opt/local/bin/wget -q -O - http://live.cyclingnews.com/live/entries|sed '"'"'s/^{"standings":.*//;s/.*"body":"//;s/","style".*//;s/<[^>]*>//g;s/&nbsp;//'"'"');echo "STATUS";echo "$LINE";if [ "$LINE" != "$LASTLINE" ]; then say "$LINE";LASTLINE="$LINE";fi;sleep 15;done'
