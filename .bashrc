@@ -271,9 +271,71 @@ tdfspeak ()
 	fi
 }
 
+readlink -f ~/.bashrc 2> /dev/null > /dev/null
+if [ 0 -ne $? ]
+then
+	# Not all readlink implementations include the -f/--canonicalize option, so we much provide that capability.
+	readlinkf ()
+	{
+		TARGET_FILE=$1
+		RETURN_DIR=$(pwd)
+
+		cd `dirname $TARGET_FILE`
+		cd `pwd -P`
+		TARGET_FILE=`basename $TARGET_FILE`
+
+		# Iterate down a (possible) chain of symlinks
+		while [ -L "$TARGET_FILE" ]
+		do
+			TARGET_FILE=`readlink $TARGET_FILE`
+			cd `dirname $TARGET_FILE`
+			TARGET_FILE=`basename $TARGET_FILE`
+		done
+
+		# Compute the canonicalized name by finding the physical path 
+		# for the directory we're in and appending the target file.
+		PHYS_DIR=`pwd -P`
+		RESULT=$PHYS_DIR/$TARGET_FILE
+		cd "$RETURN_DIR"
+		echo $RESULT
+	}
+else
+	readlinkf ()
+	{
+		readlink -f "$1"
+	}
+fi
+
+if [ -d /media/sf_$USER ] ; then
+	WINHOME=/media/sf_$USER
+elif [ -d /mnt/c/Users/$USER ] ; then
+	WINHOME=/mnt/c/Users/$USER
+else
+	WINHOME=/dev/null
+fi
+
 open ()
 {
-  readlink -f "$1" | sed 's|/media/sf_|"C:\\Documents and Settings\\|;s|/|\\|;s/$/"/' > ~/XP/opencmd.bat
+	actual=$(readlinkf "$1")
+	echo "$actual" | grep "^$WINHOME"
+	if [ 0 -eq $? ]
+	then
+		echo "$actual" | sed 's|'"$WINHOME"'|"C:\\Users\\'"$USER"'|;s|/|\\|g;s/$/"/'|sed 's/^/start "" /' > "$WINHOME"/opencmd.bat
+	else
+		$(which open|head -1) "$actual"
+	fi
+}
+
+topen ()
+{
+	actual=$(readlinkf "$1")
+	echo "$actual" | grep "^$WINHOME"
+	if [ 0 -eq $? ]
+	then
+		echo "$actual" | sed 's|'"$WINHOME"'|"C:\\Users\\'"$USER"'|;s|/|\\|g;s/$/"/'|sed 's/^/start "" /'
+	else
+		echo "$actual is not on $WINHOME"
+	fi
 }
 
 SSHCOLOR=0
