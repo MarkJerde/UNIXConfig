@@ -97,7 +97,7 @@ alias gildw='git diff --color-words'
 alias gildww='git diff --color-words=.'
 alias gildwa='git diff --color-words=[[:alnum:]]*[^[:alnum:]]'
 # Do a git format-patch to a Patch Store to save changes outside of git in case of mistakes.
-alias gifp='girbr;git format-patch -o ~/Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"` $GIRBR'
+alias gifp='girbr;DIR=~/Developer/Patch\ Store;NAME=`date +"%Y-%m-%d_%H-%M-%S"`;git format-patch -o "$DIR/$NAME" $GIRBR;pushd "$DIR";rm -f previous;mv latest previous;ln -s $NAME latest;popd'
 # gifp that takes a user-specified revision.
 alias gifpr='gibr;git format-patch -o ~/Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`'
 # git format stash.  Similar to the gifp Patch Store, but stashing unstaged changes without changing the local tree.
