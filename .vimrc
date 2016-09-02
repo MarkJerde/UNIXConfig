@@ -327,6 +327,34 @@ function! DoPrettyXML()
 endfunction
 command! PrettyXML call DoPrettyXML()
 
+" Inline math from http://vim.wikia.com/wiki/Inline_integer_arithmetic
+" e.g. <number under cursor> [M for *|D for /] <number typed before M or D>
+function! CalculateCursor(x, operator)
+  let p = @/
+  try
+    silent exe "s%-\\?\d*\\%#\\d\\+%\\=submatch(0) " . a:operator . " a:x%"
+    exe "normal \<C-O>"
+  catch /^Vim\%((\a\+)\)\=:E486/
+    try
+      silent exe "normal /\\%#.\\{-}\\zs\\d\\+/b\<CR>"
+      exe "s%-\\?\d*\\%#\\d\\+%\\=submatch(0) " . a:operator . " a:x%"
+      exe "normal \<C-O>"
+    catch /^Vim\%((\a\+)\)\=:E486/
+    endtry
+  finally
+    let @/ = p
+  endtry
+endfunction
+
+noremap <kMinus> <C-X>
+vnoremap <silent><kMinus> :<C-U>'<,'>call CalculateCursor(v:count1, "-")<CR>:noh<CR>gv
+noremap <kPlus> <C-A>
+vnoremap <silent><kPlus> :<C-U>'<,'>call CalculateCursor(v:count1, "+")<CR>:noh<CR>gv
+noremap M :<C-U>call CalculateCursor(v:count1, "*")<CR>
+vnoremap M :<C-U>'<,'>call CalculateCursor(v:count1, "*")<CR>:noh<CR>gv
+noremap D :<C-U>call CalculateCursor(v:count1, "/")<CR>
+vnoremap D :<C-U>'<,'>call CalculateCursor(v:count1, "/")<CR>:noh<CR>gv
+
 au FileType cs set omnifunc=syntaxcomplete#Complete
 au FileType cs set foldmethod=marker
 au FileType cs set foldmarker={,}
