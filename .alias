@@ -153,4 +153,24 @@ alias codetreef='for i in *.cs;do i=$(echo $i|sed '"'"'s/.cs//'"'"');echo $i:;gr
 # same directory that contain that file's extensionless name.
 alias ct_heads='for i in $(echo *.cs|sed '"'"'s/\.cs//g'"'"');do echo $(grep -l $i *.cs|grep -v $i.cs|wc -l) $i|grep "^0"|sed '"'"'s/^0 //'"'"';done'
 
+# Retrieve the pasteboard from the system we are connected from.
+which pbpaste
+if [ 0 -ne $? ]
+then
+	export REMOTE_USER=$USER
+	if [ "" == "$REMOTE_SYSTEM" ]
+	then
+		export REMOTE_SYSTEM=$(last|grep " $(env|grep pts|sed "s|.*/dev/||") "|head -1|sed "s/^[^ ]\+ \+[^ ]\+ \+//;s/\.hgs.*//;s/ .*//")
+	fi
+	if [ -f ~/.remote_users ]
+	then
+		export REMOTE_USER=$(grep "^$REMOTE_SYSTEM: " ~/.remote_users|head -1|sed 's/^'"$REMOTE_SYSTEM"': //')
+		if [ "" == "$REMOTE_USER" ]
+		then
+			export REMOTE_USER=$USER
+		fi
+	fi
+	alias pbpaste='ssh $REMOTE_USER@$REMOTE_SYSTEM pbpaste |grep "." || echo "Empty Pasteboard"'
+fi
+
 test -s ~/.alias.work && . ~/.alias.work || true
