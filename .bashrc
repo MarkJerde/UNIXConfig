@@ -141,14 +141,20 @@ git_pending_rebase() {
 
 fstype ()
 {
-	mount |grep "^$(df .|head -2|tail -1|cut -f 1 -d ' ')"|sed 's/.*(//;s/,.*//'
+	df -T 2> /dev/null > /dev/null
+	if [ 0 -eq $? ]
+	then
+		df -T .|head -2|tail -1|sed 's/  */ /g'|cut -f 2 -d ' '
+	else
+		mount |grep "^$(df .|head -2|tail -1|cut -f 1 -d ' ')"|sed 's/.*(//;s/,.*//'
+	fi
 }
 
 # Reduce to one call to __git_ps1 and one to git status -uno for performance.
 git_full_status ()
 {
   # This stuff is slow over vboxsf, smbfs, and nfs, so skip it to save 2 seconds per prompt.
-  fstype|grep -v vboxsf | grep -v smbfs | grep -v nfs | grep -q "." || return
+  fstype|grep -v vboxsf | grep -v nfs | grep -v smb | grep -v cifs | grep -q "." || return
   branch_prompt=$(__git_ps1)
   if [ -n "$branch_prompt" ]; then
     gso=$(git status -uno)
