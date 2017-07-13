@@ -177,4 +177,7 @@ alias compressMOVs='for i in *.MOV;do ffmpeg -i $i -vf scale=288:162 -an compres
 alias compressPNGs='for i in *.PNG;do cp $i compressed.$i;sips -Z 640 compressed.$i;touch -r $i compressed.$i;ls -l *$i;echo open *$i;done'
 alias compressJPGs='for i in *.JPG;do cp $i compressed.$i;sips -Z 640 compressed.$i;touch -r $i compressed.$i;ls -l *$i;echo open *$i;done'
 
+# List current desktop wallpapers on OS X
+alias lswall='osascript -e "tell application \"System Events\" to picture of every desktop"'
+
 test -s ~/.alias.work && . ~/.alias.work || true
