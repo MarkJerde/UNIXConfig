@@ -357,6 +357,30 @@ alias psLmarathi='export PSDELIM_lang="marathi"'
 alias psLhindi='export PSDELIM_lang="hindi"'
 alias psLthai='export PSDELIM_lang="thai"'
 
+# For non-root users, log commands.
+# See: https://spin.atomicobject.com/2016/05/28/log-bash-history/
+function log_bash_history
+{
+	if [ "$log_bash_history_non_first" == 1 ]
+	then
+		echo "$(date "+%Y-%m-%d.%H:%M:%S")	$(hostname):$$:$(pwd)	$(history 1)" >> ~/.logs/bash-history-$(date "+%Y-%m-%d").log
+	fi
+	log_bash_history_non_first=1
+}
+
+# If this is an interactive shell of non-root user.
+# Could use 'if [ "$(id -u)" -ne 0 ]' but this is fancier.
+if [[ $- = *i* ]] && (( EUID != 0 ))
+then
+	[[ -d ~/.logs ]] || mkdir ~/.logs
+	# This format is reported to preserve functionality of terminals being
+	# opened in the correct directory.
+	# But of course it results in accumulation of log_bash_history in Linux
+	# Subsystem for Windows so filter those out.
+	TEMP_PROMPT_COMMAND=$(echo "$PROMPT_COMMAND"|sed 's/log_bash_history; *//g;s/; *$//')
+	export PROMPT_COMMAND="log_bash_history; $TEMP_PROMPT_COMMAND"
+fi
+
 # Basic prompt with Git branch name.
 PS1='\h:\W$(__git_ps1 "(%s)") \u\$ '
 # Basic prompt with Git branch name and colorful icons.
