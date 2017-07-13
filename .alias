@@ -125,10 +125,10 @@ alias videos='strings $(ls -tr ~/Desktop/httpGETrunningCapture*|tail -1) |sed -n
 
 # GTV-related stuff
 alias adb-route='sudo route -n add 192.168.3.0/24 192.168.1.2'
-alias adb-connect='/Users/mjerde/Developer/android-sdk-macosx/platform-tools/adb connect 192.168.3.32'
-alias adb-shell='/Users/mjerde/Developer/android-sdk-macosx/platform-tools/adb shell'
-alias adb-logcat='/Users/mjerde/Developer/android-sdk-macosx/platform-tools/adb logcat -b main'
-alias adb='/Users/mjerde/Developer/android-sdk-macosx/platform-tools/adb'
+alias adb-connect='adb connect 192.168.3.32'
+alias adb-shell='adb shell'
+alias adb-logcat='adb logcat -b main'
+alias adb='if [ ! -d /tmp/android-sdk-macosx ];then pushd /tmp;tar -xvzf /Users/mjerde/Developer/android-sdk-macosx.tgz android-sdk-macosx/platform-tools;popd;fi;/tmp/android-sdk-macosx/platform-tools/adb'
 alias ddx='java -jar ~/Developer/GoogleTV/Code/Community/ddx1.18.jar'
 
 # iWeb mangles some URLs when the site name includes a port number.  Here, the
