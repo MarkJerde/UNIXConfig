@@ -173,4 +173,8 @@ then
 	alias pbpaste='ssh $REMOTE_USER@$REMOTE_SYSTEM pbpaste |grep "." || echo "Empty Pasteboard"'
 fi
 
+alias compressMOVs='for i in *.MOV;do ffmpeg -i $i -vf scale=288:162 -an compressed.$i;touch -r $i compressed.$i;done'
+alias compressPNGs='for i in *.PNG;do cp $i compressed.$i;sips -Z 640 compressed.$i;touch -r $i compressed.$i;ls -l *$i;echo open *$i;done'
+alias compressJPGs='for i in *.JPG;do cp $i compressed.$i;sips -Z 640 compressed.$i;touch -r $i compressed.$i;ls -l *$i;echo open *$i;done'
+
 test -s ~/.alias.work && . ~/.alias.work || true
