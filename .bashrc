@@ -88,7 +88,7 @@ git_pending_commit() {
     fi
   fi
   if [ -n "$gso" ]; then
-    if ! current_git_status=$(echo $gso | grep 'nothing to commit' 2> /dev/null)
+    if ! current_git_status=$(echo "$gso" | grep 'nothing to commit' 2> /dev/null)
     then
       echo -ne '\033[31m☠ '
     fi
@@ -105,11 +105,11 @@ git_pending_push() {
     fi
   fi
   if [ -n "$gso" ]; then
-    if current_git_status=$(echo $gso | grep 'Your branch is ahead of' 2> /dev/null)
+    if current_git_status=$(echo "$gso" | grep 'Your branch is ahead of' 2> /dev/null)
     then
       echo -ne '\033[33m⇧ '
     else
-      if current_git_status=$(echo $gso | grep 'Your branch and .* have diverged' 2> /dev/null)
+      if current_git_status=$(echo "$gso" | grep 'Your branch and .* have diverged' 2> /dev/null)
       then
         echo -ne '\033[33m⇧ '
       fi
@@ -127,11 +127,11 @@ git_pending_rebase() {
     fi
   fi
   if [ -n "$gso" ]; then
-    if current_git_status=$(echo $gso | grep 'Your branch is behind' 2> /dev/null)
+    if current_git_status=$(echo "$gso" | grep 'Your branch is behind' 2> /dev/null)
     then
       echo -ne '\033[34m⇒ '
     else
-      if current_git_status=$(echo $gso | grep 'Your branch and .* have diverged' 2> /dev/null)
+      if current_git_status=$(echo "$gso" | grep 'Your branch and .* have diverged' 2> /dev/null)
       then
         echo -ne '\033[34m⇒ '
       fi
