@@ -282,25 +282,25 @@ then
 	# Not all readlink implementations include the -f/--canonicalize option, so we much provide that capability.
 	readlinkf ()
 	{
-		TARGET_FILE=$1
-		RETURN_DIR=$(pwd)
+		TARGET_FILE="$1"
+		RETURN_DIR="$(pwd)"
 
-		cd `dirname $TARGET_FILE`
-		cd `pwd -P`
-		TARGET_FILE=`basename $TARGET_FILE`
+		cd "`dirname "$TARGET_FILE"`"
+		cd "`pwd -P`"
+		TARGET_FILE=`basename "$TARGET_FILE"`
 
 		# Iterate down a (possible) chain of symlinks
 		while [ -L "$TARGET_FILE" ]
 		do
-			TARGET_FILE=`readlink $TARGET_FILE`
-			cd `dirname $TARGET_FILE`
-			TARGET_FILE=`basename $TARGET_FILE`
+			TARGET_FILE=`readlink "$TARGET_FILE"`
+			cd `dirname "$TARGET_FILE"`
+			TARGET_FILE=`basename "$TARGET_FILE"`
 		done
 
 		# Compute the canonicalized name by finding the physical path 
 		# for the directory we're in and appending the target file.
 		PHYS_DIR=`pwd -P`
-		RESULT=$PHYS_DIR/$TARGET_FILE
+		RESULT="$PHYS_DIR/$TARGET_FILE"
 		cd "$RETURN_DIR"
 		echo $RESULT
 	}
