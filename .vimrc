@@ -111,6 +111,7 @@ map w 
 syntax on
 
 let $VIM_GZIPfiles = "*.gz"
+let $VIM_PLISTfiles = "*.plist"
 
 " gzip group first so that files are gzipped before other commands are processed
 augroup gzip
@@ -134,6 +135,23 @@ augroup gzip
   autocmd FileAppendPre			$VIM_GZIPfiles !mv <afile>:r <afile>
   autocmd FileAppendPost		$VIM_GZIPfiles !mv <afile> <afile>:r
   autocmd FileAppendPost		$VIM_GZIPfiles !gzip <afile>:r
+augroup END
+
+" plist group first so that files are plistped before other commands are processed
+augroup plist
+  " Remove all plist autocommands
+  au!
+
+  " Enable editing of plist files
+  "	  read:	set binary mode before reading the file
+  "		convert text in buffer after reading
+  "	 write:	compress file after writing
+  "	append:	uncompress file, append, compress file
+  autocmd BufReadPre,FileReadPre	$VIM_PLISTfiles set bin
+  autocmd BufReadPost,FileReadPost	$VIM_PLISTfiles '[,']!plutil -convert xml1 - -o -
+  autocmd BufReadPost,FileReadPost	$VIM_PLISTfiles set nobin
+
+  autocmd FileAppendPre			$VIM_PLISTfiles !plutil -convert xml1 <afile>
 augroup END
 
 augroup restoreLine
