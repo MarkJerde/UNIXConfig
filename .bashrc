@@ -33,12 +33,14 @@ set -o vi
 bind '"\C-xp": emacs-editing-mode'
 set -o emacs
 
-test -s /usr/share/git-core/git-prompt.sh && . /usr/share/git-core/git-prompt.sh || true
-test -s /opt/local/share/git-core/contrib/completion/git-prompt.sh && . /opt/local/share/git-core/contrib/completion/git-prompt.sh || true
-test -s /opt/local/etc/bash_completion.d/git-prompt.sh && . /opt/local/etc/bash_completion.d/git-prompt.sh || true
-test -s /usr/share/git-core/git-completion.bash && . /usr/share/git-core/git-completion.bash || true
-test -s /opt/local/share/git-core/contrib/completion/git-completion.bash && . /opt/local/share/git-core/contrib/completion/git-completion.bash || true
-test -s /opt/local/etc/bash_completion.d/git-completion.bash && . /opt/local/etc/bash_completion.d/git-completion.bash || true
+# Look for our Git scripts
+for gitCompletion in /usr/share/git-core /opt/local/share/git-core/contrib/completion /opt/local/etc/bash_completion.d /opt/local/share/git/contrib/completion
+do
+	for gitScript in git-completion.bash git-prompt.sh
+	do
+		test -s "$gitCompletion/$gitScript" && . "$gitCompletion/$gitScript" || true
+	done
+done
 
 editmode() {
 	set -o | grep 'emacs.*on' >/dev/null 2>&1 && echo -ne '\033[32mE\033[39m' || echo -ne '\033[31mV\033[39m'
