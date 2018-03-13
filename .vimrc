@@ -28,6 +28,10 @@ set visualbell	"Take the beep down another step or two.
 set wildchar=<TAB>
 set guioptions-=T  " No toolbar please.
 
+set history=1000
+set viminfo-=:42 | set viminfo+=:1000
+
+
 " Support iabs for macros.
 iab INSERTCLASSNAMEHERE <C-R>=expand("%:t:r")<cr>
 iab INSERTFILEDEFINEHERE <C-R>=expand("%:t")<cr>
