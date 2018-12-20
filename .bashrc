@@ -342,17 +342,29 @@ else
 	WINHOME=/dev/null
 fi
 
-open ()
-{
-	actual=$(readlinkf "$1")
-	echo "$actual" | grep "^$WINHOME"
-	if [ 0 -eq $? ]
+which -a open > /dev/null 2> /dev/null
+if [ 0 -ne $? ]
+then
+	if [ -f /mnt/c/Windows/System32/cmd.exe ]
 	then
-		echo "$actual" | sed 's|'"$WINHOME"'|"C:\\Users\\'"$USER"'|;s|/|\\|g;s/$/"/'|sed 's/^/start "" /' > "$WINHOME"/opencmd.bat
+		alias open='/mnt/c/Windows/System32/cmd.exe /c start'
+	elif [ -f /c/windows/system32/cmd ]
+	then
+		alias open='/c/windows/system32/cmd //c start'
 	else
-		$(which open|head -1) "$actual"
+		open ()
+		{
+			actual=$(readlinkf "$1")
+			echo "$actual" | grep "^$WINHOME"
+			if [ 0 -eq $? ]
+			then
+				echo "$actual" | sed 's|'"$WINHOME"'|"C:\\Users\\'"$USER"'|;s|/|\\|g;s/$/"/'|sed 's/^/start "" /' > "$WINHOME"/opencmd.bat
+			else
+				$(which open|head -1) "$actual"
+			fi
+		}
 	fi
-}
+fi
 
 topen ()
 {
