@@ -84,7 +84,7 @@ alias serialscreen='screen -D -R -S usbserial /dev/tty.usbserial 115200 cs8'
 alias giru='git remote update -p'
 alias girom='git rebase origin/master'
 alias gibr='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`'
-alias girbr='gibr;GIRBR="$GIBR~10";if [ -f .git/refs/remotes/git-svn ]; then GIRBR=$(cat .git/refs/remotes/git-svn);fi;git remote -v|grep -q "^origin	" && GIRBR="origin/$GIBR"';
+alias girbr='gibr;GIRBR="$GIBR~10";if [ -f .git/refs/remotes/git-svn ]; then GIRBR=$(cat .git/refs/remotes/git-svn);fi;git remote -v|grep -q "^origin	" && GIRBR="origin/$GIBR";GIRBR=$(git merge-base $GIRBR HEAD || git merge-base origin/master HEAD)';
 alias giro='girbr;git rebase $GIRBR'
 alias giruo='giru && giro'
 alias gicm='git checkout master'
