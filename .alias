@@ -162,23 +162,34 @@ alias codetreef='for i in *.cs;do i=$(echo $i|sed '"'"'s/.cs//'"'"');echo $i:;gr
 alias ct_heads='for i in $(echo *.cs|sed '"'"'s/\.cs//g'"'"');do echo $(grep -l $i *.cs|grep -v $i.cs|wc -l) $i|grep "^0"|sed '"'"'s/^0 //'"'"';done'
 
 # Retrieve the pasteboard from the system we are connected from.
-which pbpaste | grep -q pbpaste
-if [ 0 -ne $? ]
+which pbpaste.exe > /dev/null
+if [ 0 -eq $? ]
 then
-	export REMOTE_USER=$USER
-	if [ "" == "$REMOTE_SYSTEM" ]
+	alias pbpaste=$(which pbpaste.exe)
+	which pbcopy.exe > /dev/null
+	if [ 0 -eq $? ]
 	then
-		export REMOTE_SYSTEM=$(last|grep " $(env|grep pts|sed "s|.*/dev/||") "|head -1|sed "s/^[^ ]\+ \+[^ ]\+ \+//;s/\.hgs.*//;s/ .*//")
+		alias pbcopy=$(which pbcopy.exe)
 	fi
-	if [ -f ~/.remote_users ]
+else
+	which pbpaste | grep -q pbpaste
+	if [ 0 -ne $? ]
 	then
-		export REMOTE_USER=$(grep "^$REMOTE_SYSTEM: " ~/.remote_users|head -1|sed 's/^'"$REMOTE_SYSTEM"': //')
-		if [ "" == "$REMOTE_USER" ]
+		export REMOTE_USER=$USER
+		if [ "" == "$REMOTE_SYSTEM" ]
 		then
-			export REMOTE_USER=$USER
+			export REMOTE_SYSTEM=$(last|grep " $(env|grep pts|sed "s|.*/dev/||") "|head -1|sed "s/^[^ ]\+ \+[^ ]\+ \+//;s/\.hgs.*//;s/ .*//")
 		fi
+		if [ -f ~/.remote_users ]
+		then
+			export REMOTE_USER=$(grep "^$REMOTE_SYSTEM: " ~/.remote_users|head -1|sed 's/^'"$REMOTE_SYSTEM"': //')
+			if [ "" == "$REMOTE_USER" ]
+			then
+				export REMOTE_USER=$USER
+			fi
+		fi
+		alias pbpaste='ssh $REMOTE_USER@$REMOTE_SYSTEM pbpaste |grep "." || echo "Empty Pasteboard"'
 	fi
-	alias pbpaste='ssh $REMOTE_USER@$REMOTE_SYSTEM pbpaste |grep "." || echo "Empty Pasteboard"'
 fi
 
 alias compressMOVs='for i in *.MOV;do ffmpeg -i $i -vf scale=288:162 -an compressed.$i;touch -r $i compressed.$i;done'
