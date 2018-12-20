@@ -3,6 +3,9 @@ test -s ~/.bashrc.default && . ~/.bashrc.default || true
 
 export PATH=/opt/local/bin:$PATH
 test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
+# For systems with a secondary home, such as WSL:
+test -d $HOME/home/bin && export PATH=$HOME/home/bin:$PATH || true
+
 test -s ~/.alias && . ~/.alias || true
 
 export EDITOR=vi
