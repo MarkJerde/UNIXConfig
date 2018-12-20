@@ -151,20 +151,38 @@ git_pending_rebase() {
 
 fstype ()
 {
-	df -T 2> /dev/null > /dev/null
+	uname | grep -q -e CYGWIN -e MINGW
 	if [ 0 -eq $? ]
 	then
-		df -T .|head -2|tail -1|sed 's/  */ /g'|cut -f 2 -d ' '
+		echo slowOS
+		return
+	fi
+
+	result="$(df -T .)" 2> /dev/null > /dev/null
+	if [ 0 -eq $? ]
+	then
+		echo "$result"|head -2|tail -1|sed 's/  */ /g'|cut -f 2 -d ' '
 	else
 		mount |grep "^$(df .|head -2|tail -1|cut -f 1 -d ' ')"|sed 's/.*(//;s/,.*//'
 	fi
 }
 
+git_full_status_disabled ()
+{
+	# This stuff is slow over various slow systems, so skip it to save 2 seconds per prompt.
+	fstype|grep -q -e slowOS
+}
+
 # Reduce to one call to __git_ps1 and one to git status -uno for performance.
 git_full_status ()
 {
-  # This stuff is slow over vboxsf, smbfs, and nfs, so skip it to save 2 seconds per prompt.
-  fstype|grep -v vboxsf | grep -v nfs | grep -v smb | grep -v cifs | grep -q "." || return
+  # This stuff is slow over vboxsf, smbfs, nfs, and other slow systems, so skip it to save 2 seconds per prompt.
+  fstype|grep -q -e vboxsf -e nfs -e smb -e cifs -e slowOS
+  if [ 0 -eq $? ]
+  then
+  	return
+  fi
+
   branch_prompt=$(__git_ps1)
   if [ -n "$branch_prompt" ]; then
     gso=$(git status -uno)
@@ -378,9 +396,11 @@ function log_bash_history
 {
 	if [ "$log_bash_history_non_first" == 1 ]
 	then
-		echo "$(date "+%Y-%m-%d.%H:%M:%S")	$(hostname):$$:$(pwd)	$(history 1)" >> ~/.logs/bash-history-$(date "+%Y-%m-%d").log
+		TS="$(date "+%Y-%m-%d.%H:%M:%S")"
+		echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$(history 1)" >> ~/.logs/bash-history-${TS::10}.log
+	else
+		log_bash_history_non_first=1
 	fi
-	log_bash_history_non_first=1
 }
 
 # If this is an interactive shell of non-root user.
@@ -388,6 +408,8 @@ function log_bash_history
 if [[ $- = *i* ]] && (( EUID != 0 ))
 then
 	[[ -d ~/.logs ]] || mkdir ~/.logs
+	export LOG_BASH_HISTORY_HOSTNAME="$(hostname)"
+	export LOG_BASH_HISTORY_PID=$$
 	# This format is reported to preserve functionality of terminals being
 	# opened in the correct directory.
 	# But of course it results in accumulation of log_bash_history in Linux
@@ -404,6 +426,13 @@ PS1='\h:\W$(git_prompt_info)\[\e[1;34m\]$(git_pending_rebase)\[\e[0m\]\[\e[1;33m
 PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
 \[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
 \u\$ '
+
+# Disable a few things on slow systems
+git_full_status_disabled
+if [ $? -eq 0 ]
+then
+	export PS1="$(echo "$PS1"|sed 's/\$(editmode)//g;s/\$(git_full_status)//g;s/\$(get_vpn_status)//g')"
+fi
 
 test -s ~/.bashrc.work && . ~/.bashrc.work || true
 
