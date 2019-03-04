@@ -200,6 +200,6 @@ alias compressJPGs='for i in *.JPG;do cp $i compressed.$i;sips -Z 640 compressed
 alias lswall='osascript -e "tell application \"System Events\" to picture of every desktop"'
 
 # Stop having to worry about md5sum vs md5 (Linux vs Mac)
-alias md5=md5sum
+command -v md5 || alias md5=md5sum
 
 test -s ~/.alias.work && . ~/.alias.work || true
