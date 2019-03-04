@@ -378,6 +378,15 @@ topen ()
 	fi
 }
 
+gcb ()
+	{
+	input="$1"
+	repo="$(echo "$input"|sed 's/=.*//')"
+	branch="$(echo "$input"|sed 's/.*=//')"
+	shortRepo="$(echo "$repo"|sed 's|.*/||;s/\.git$//')"
+	git clone --single-branch --branch "$branch" "$repo" "$shortRepo-$branch.git"
+}
+
 SSHCOLOR=0
 env | grep -q SSH_CONNECTION && export SSHCOLOR=31
 
