@@ -439,6 +439,14 @@ then
 	export PROMPT_COMMAND="log_bash_history; $TEMP_PROMPT_COMMAND"
 fi
 
+[[ -d ~/.used ]] || mkdir ~/.used
+function used
+{
+	TS="$(date "+%Y-%m-%d.%H:%M:%S")"
+	prefix=$(echo "$1"|tr '[A-Z]' '[a-z]'|sed 's/\+\+/plusplus/;s/#/sharp/;s/[^a-z0-9]//')
+	echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$@" >> ~/.used/$prefix-${TS::10}.log
+}
+
 # Basic prompt with Git branch name.
 PS1='\h:\W$(__git_ps1 "(%s)") \u\$ '
 # Basic prompt with Git branch name and colorful icons.
