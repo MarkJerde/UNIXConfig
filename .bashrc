@@ -447,6 +447,17 @@ function used
 	echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$@" >> ~/.used/$prefix-${TS::10}.log
 }
 
+# Paste from Flycut. History index as parameter. Defaults to zero.
+function fcpaste
+{
+	index="$1"
+	if [ "" == "$index" ]
+	then
+		index=0
+	fi
+	/usr/libexec/PlistBuddy -c "Print store:jcList:$index:Contents" /Users/mjerde/Library/Preferences/-X95R6W2D.com.mark-a-jerde.Flycut-macOS.plist
+}
+
 # Basic prompt with Git branch name.
 PS1='\h:\W$(__git_ps1 "(%s)") \u\$ '
 # Basic prompt with Git branch name and colorful icons.
