@@ -415,6 +415,26 @@ gifp () {
 	popd
 }
 
+# Push branch in parameter or pbasteboard and open PR.
+gipopr () {
+	branch="$1"
+
+	if [ "" == "$branch" ]
+	then
+		branch=$(pbpaste)
+	fi
+
+	count=$(git branch --list "$branch"|wc -l)
+	if [ "0" == "$count" ]
+	then
+		echo "Not a branch: '$branch'."
+		return -1
+	fi
+
+	git push origin "$branch":"$branch"
+	open https://$(git remote get-url origin|sed 's/^git@//;s|:|/|;s/\.git$//')/pull/new/"$branch"
+}
+
 SSHCOLOR=0
 env | grep -q SSH_CONNECTION && export SSHCOLOR=31
 
