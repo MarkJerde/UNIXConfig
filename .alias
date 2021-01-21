@@ -121,6 +121,7 @@ alias pbgd='git diff $(pbpaste)~1..$(pbpaste)'
 alias pbgdr='git diff $(pbpaste)..$(pbpaste)~1'
 alias pbpatchclean='pbpaste|sed "s/^+//"|pbcopy'
 alias pbpatchcleanneg='pbpaste|sed "s/^-//"|pbcopy'
+alias pbdindent='pbpaste|dindent|pbcopy'
 
 # Cyclingnews update reader
 alias cyclingnews='LASTLINE="";while true; do LINE=$(/opt/local/bin/wget -q -O - http://live.cyclingnews.com/live/entries|sed '"'"'s/^{"standings":.*//;s/.*"body":"//;s/","style".*//;s/<[^>]*>//g;s/&nbsp;//'"'"');echo "STATUS";echo "$LINE";if [ "$LINE" != "$LASTLINE" ]; then say "$LINE";LASTLINE="$LINE";fi;sleep 15;done'
