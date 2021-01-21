@@ -205,4 +205,8 @@ alias lswall='osascript -e "tell application \"System Events\" to picture of eve
 # Stop having to worry about md5sum vs md5 (Linux vs Mac)
 command -v md5 2> /dev/null > /dev/null || alias md5=md5sum
 
+# Easy URL encode and decode
+alias urldecode='perl -MURI::Escape -ne '"'"'print uri_unescape($_)'"'"''
+alias urlencode='perl -MURI::Escape -ne '"'"'print uri_escape($_)'"'"''
+
 test -s ~/.alias.work && . ~/.alias.work || true
