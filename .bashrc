@@ -529,7 +529,23 @@ PS1='\h:\W$(git_prompt_info)\[\e[1;34m\]$(git_pending_rebase)\[\e[0m\]\[\e[1;33m
 # Multi-line prompt with Git branch name and colorful icons.
 PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
 \[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+\u\$                \[\e[1;94m\]\[\e[2m\]__________________________________________________\[\e[0m\]\[\e[65D\]'
+PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
+\[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+\u\$ \[\e7\]               \[\e[1;94m\]\[\e[2m\]__________________________________________________
+                                                                       _\[\e[0m\]\[\e8\]'
+PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
+\[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+\u\$ \[\e7\]               \[\e[1;94m\]\[\e[2m\]__________________________________________________
+                                                                         _\[\e[0m\]\[\e[2A\]
 \u\$ '
+PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
+\[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+\u\$ \[\e7\]               \[\e[1;94m\]\[\e[2m\]_________________________________________________|\[\e[1A\]
+\[\e[73C\]\[\e[1;37m\]_\[\e[0m\]\[\e[1A\]
+\u\$ '
+# Git 50/72 rule
+# or 94 (blue) -> 37 (gray)
 
 # Disable a few things on slow systems
 git_full_status_disabled
