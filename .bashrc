@@ -387,6 +387,34 @@ gcb ()
 	git clone --single-branch --branch "$branch" "$repo" "$shortRepo-$branch.git"
 }
 
+# Do a git format-patch to a Patch Store to save changes outside of git in case of mistakes.
+gifp () {
+	DIR=~/Developer/Patch\ Store
+	NAME=`date +"%Y-%m-%d_%H-%M-%S"`
+
+	if [ "" != "$1" ]
+	then
+		git log -1 "$1" 2> /dev/null > /dev/null
+		if [ 0 -eq $? ]
+		then
+			parent="$1"
+		else
+			echo "Unrecognized reference '$1'."
+			return -1
+		fi
+	else
+		girbr
+		parent="$GIRBR"
+	fi
+
+	git format-patch -o "$DIR/$NAME" "$parent"
+	pushd "$DIR"
+		rm -f previous
+		mv latest previous
+		ln -s $NAME latest
+	popd
+}
+
 SSHCOLOR=0
 env | grep -q SSH_CONNECTION && export SSHCOLOR=31
 

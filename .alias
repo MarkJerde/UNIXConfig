@@ -96,10 +96,6 @@ alias gidwa='girbr;git diff --color-words=[[:alnum:]]*[^[:alnum:]] $GIRBR..$GIBR
 alias gildw='git diff --color-words'
 alias gildww='git diff --color-words=.'
 alias gildwa='git diff --color-words=[[:alnum:]]*[^[:alnum:]]'
-# Do a git format-patch to a Patch Store to save changes outside of git in case of mistakes.
-alias gifp='girbr;DIR=~/Developer/Patch\ Store;NAME=`date +"%Y-%m-%d_%H-%M-%S"`;git format-patch -o "$DIR/$NAME" $GIRBR;pushd "$DIR";rm -f previous;mv latest previous;ln -s $NAME latest;popd'
-# gifp that takes a user-specified revision.
-alias gifpr='gibr;git format-patch -o ~/Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`'
 # git format stash.  Similar to the gifp Patch Store, but stashing unstaged changes without changing the local tree.
 alias gifst='target=Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`; for file in $(git status|grep "^#[ 	]*modified: "|sed '"'"'s/.*modified:  *//'"'"');do dir=$(echo "$file"|sed '"'"'s/\(.*\)\/.*/\1/'"'"');mkdir -p ~/"$target/$dir";cp -a "$file" ~/"$target/$file";done'
 alias gipohm='gifindpushpendingfiletypechanges && echo "Pushing HEAD:master to origin!!!" && sleep 3 && git push origin HEAD:master'
