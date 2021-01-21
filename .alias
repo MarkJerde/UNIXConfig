@@ -209,4 +209,7 @@ command -v md5 2> /dev/null > /dev/null || alias md5=md5sum
 alias urldecode='perl -MURI::Escape -ne '"'"'print uri_unescape($_)'"'"''
 alias urlencode='perl -MURI::Escape -ne '"'"'print uri_escape($_)'"'"''
 
+# Add a list of numbers, one per line.
+alias addup='sed '"'"'s/ .*//'"'"'|tr '"'"'\n'"'"' '"'"'+'"'"'|sed '"'"'s/+$/Z/'"'"'|tr '"'"'Z'"'"' '"'"'\n'"'"'|bc'
+
 test -s ~/.alias.work && . ~/.alias.work || true
