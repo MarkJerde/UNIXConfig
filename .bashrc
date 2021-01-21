@@ -493,7 +493,7 @@ function log_bash_history
 	if [ "$log_bash_history_non_first" == 1 ]
 	then
 		TS="$(date "+%Y-%m-%d.%H:%M:%S")"
-		echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$(history 1)" >> ~/.logs/bash-history-${TS::10}.log
+		echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)$(git branch 2> /dev/null|grep "^\*"|sed 's/^. */:/')	$(history 1)" >> ~/.logs/bash-history-${TS::10}.log
 	else
 		log_bash_history_non_first=1
 	fi
