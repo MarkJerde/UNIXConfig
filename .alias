@@ -84,7 +84,7 @@ alias serialscreen='screen -D -R -S usbserial /dev/tty.usbserial 115200 cs8'
 alias giru='git remote update -p'
 alias girom='git rebase origin/master'
 alias gibr='GIBR=`git symbolic-ref HEAD|sed '"'s/^refs\/heads\///'"'`'
-alias girbr='gibr;GIRBR="$GIBR~10";if [ -f .git/refs/remotes/git-svn ]; then GIRBR=$(cat .git/refs/remotes/git-svn);fi;git remote -v|grep -q "^origin	" && GIRBR="origin/$GIBR";GIRBR=$(git merge-base $GIRBR HEAD || git merge-base origin/master HEAD)';
+alias girbr='gibr;GIRBR="$GIBR~10";if [ -f .git/refs/remotes/git-svn ]; then GIRBR=$(cat .git/refs/remotes/git-svn);fi;if git remote -v|grep -q "^origin	"; then GIRBR="origin/$GIBR" ; git log $GIRBR 1> /dev/null 2> /dev/null || GIRBR=origin/develop ; GIRBR=$(git merge-base HEAD $GIRBR); fi';
 alias giro='girbr;git rebase $GIRBR'
 alias giruo='giru && giro'
 alias gicm='git checkout master'
@@ -96,10 +96,6 @@ alias gidwa='girbr;git diff --color-words=[[:alnum:]]*[^[:alnum:]] $GIRBR..$GIBR
 alias gildw='git diff --color-words'
 alias gildww='git diff --color-words=.'
 alias gildwa='git diff --color-words=[[:alnum:]]*[^[:alnum:]]'
-# Do a git format-patch to a Patch Store to save changes outside of git in case of mistakes.
-alias gifp='girbr;DIR=~/Developer/Patch\ Store;NAME=`date +"%Y-%m-%d_%H-%M-%S"`;git format-patch -o "$DIR/$NAME" $GIRBR;pushd "$DIR";rm -f previous;mv latest previous;ln -s $NAME latest;popd'
-# gifp that takes a user-specified revision.
-alias gifpr='gibr;git format-patch -o ~/Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`'
 # git format stash.  Similar to the gifp Patch Store, but stashing unstaged changes without changing the local tree.
 alias gifst='target=Developer/Patch\ Store/`date +"%Y-%m-%d_%H-%M-%S"`; for file in $(git status|grep "^#[ 	]*modified: "|sed '"'"'s/.*modified:  *//'"'"');do dir=$(echo "$file"|sed '"'"'s/\(.*\)\/.*/\1/'"'"');mkdir -p ~/"$target/$dir";cp -a "$file" ~/"$target/$file";done'
 alias gipohm='gifindpushpendingfiletypechanges && echo "Pushing HEAD:master to origin!!!" && sleep 3 && git push origin HEAD:master'
@@ -111,6 +107,11 @@ alias giri='girbr;git rebase --interactive $GIRBR~1 --autosquash'
 alias gifindfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC ]; then mv $GFTC $GFTC.old; else echo > $GFTC.old;fi;for i in $(git status|grep "modified:"|sed "s/.*modified: *//"|grep -v " ");do DIFF=$(diff <(git show origin/master:"$i"|file -) <(cat "$i"|file -));RES=$?;if [ 0 != $RES ];then grep -q "^$i$" $GFTC.old;RES=$?;if [ 0 != $RES ]; then echo "$i";echo "$DIFF";echo "#$i" >> $GFTC;PROBLEM="Problems detected.  Uncomment in $GFTC to override.";fi;fi;done;echo $PROBLEM|grep "Problems detected.";echo $?|grep -qv "^0$"'
 alias gifindpushpendingfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC ]; then mv $GFTC $GFTC.old; else echo > $GFTC.old;fi;for i in $(git log origin/master..master --name-only --pretty="format:" | sort | uniq|grep -v " ");do DIFF=$(diff <(git show origin/master:"$i" 2> /dev/null|file -) <(git show HEAD:"$i" 2> /dev/null|file -));RES=$?;if [ 0 != $RES ];then echo "$DIFF" |grep -q "^[<>] /dev/stdin: no read permission";if [ 0 == $? ];then RES=0;fi;fi; if [ 0 != $RES ];then grep -q "^$i$" $GFTC.old;RES=$?;if [ 0 != $RES ]; then echo "$i";echo "$DIFF";echo "#$i" >> $GFTC;PROBLEM="Problems detected.  Uncomment in $GFTC to override.";fi;fi;done;echo $PROBLEM|grep "Problems detected.";echo $?|grep -qv "^0$"'
 alias gico='gifindfiletypechanges && git commit'
+alias gisync='for i in ~/Developer/sync_*.git ; do pushd "$i" ; git fetch upstream;for branch in $(git branch -r|grep "^  upstream\/"|sed "s/^  upstream\///") ; do git push origin upstream/$branch:$branch ; done ; popd ; done'
+alias gibra='git for-each-ref --sort=committerdate --format="%(committerdate)%09%(refname)%09%(subject)" refs/heads | tail | sed -e "s-refs/heads/--"|sed "s/\(	.*	.\{30\}\).*/\1/;s/\(	\)\(.*\)	/\1$(tput setaf 1)\2$(tput sgr0)\1/"'
+alias prchanges='grep "^diff"|sed "s/.* b\///"|sed "s/.*/- & - /"'
+# Git grep blame
+alias gigrbl='git blame "$(git grep -l "$(pbpaste)" | head -1)"'
 
 # Pasteboard use
 alias pbdiff='vi -d ~/Desktop/"$(ls -t ~/Desktop/|grep "^Clipping "|head -2|tail -1)" ~/Desktop/"$(ls -t ~/Desktop/|grep "^Clipping "|head -1)"'
@@ -119,6 +120,8 @@ alias pbvis='vi ~/Desktop/"$(ls -t ~/Desktop/|grep "^Clipping "|head -1)"'
 alias pbgd='git diff $(pbpaste)~1..$(pbpaste)'
 alias pbgdr='git diff $(pbpaste)..$(pbpaste)~1'
 alias pbpatchclean='pbpaste|sed "s/^+//"|pbcopy'
+alias pbpatchcleanneg='pbpaste|sed "s/^-//"|pbcopy'
+alias pbdindent='pbpaste|dindent|pbcopy'
 
 # Cyclingnews update reader
 alias cyclingnews='LASTLINE="";while true; do LINE=$(/opt/local/bin/wget -q -O - http://live.cyclingnews.com/live/entries|sed '"'"'s/^{"standings":.*//;s/.*"body":"//;s/","style".*//;s/<[^>]*>//g;s/&nbsp;//'"'"');echo "STATUS";echo "$LINE";if [ "$LINE" != "$LASTLINE" ]; then say "$LINE";LASTLINE="$LINE";fi;sleep 15;done'
@@ -200,6 +203,13 @@ alias compressJPGs='for i in *.JPG;do cp $i compressed.$i;sips -Z 640 compressed
 alias lswall='osascript -e "tell application \"System Events\" to picture of every desktop"'
 
 # Stop having to worry about md5sum vs md5 (Linux vs Mac)
-command -v md5 || alias md5=md5sum
+command -v md5 2> /dev/null > /dev/null || alias md5=md5sum
+
+# Easy URL encode and decode
+alias urldecode='perl -MURI::Escape -ne '"'"'print uri_unescape($_)'"'"''
+alias urlencode='perl -MURI::Escape -ne '"'"'print uri_escape($_)'"'"''
+
+# Add a list of numbers, one per line.
+alias addup='sed '"'"'s/ .*//'"'"'|tr '"'"'\n'"'"' '"'"'+'"'"'|sed '"'"'s/+$/Z/'"'"'|tr '"'"'Z'"'"' '"'"'\n'"'"'|bc'
 
 test -s ~/.alias.work && . ~/.alias.work || true

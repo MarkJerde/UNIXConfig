@@ -37,7 +37,7 @@ bind '"\C-xp": emacs-editing-mode'
 set -o emacs
 
 # Look for our Git scripts
-for gitCompletion in /usr/share/git-core /opt/local/share/git-core/contrib/completion /opt/local/etc/bash_completion.d /opt/local/share/git/contrib/completion
+for gitCompletion in /usr/share/git-core /opt/local/share/git-core/contrib/completion /opt/local/etc/bash_completion.d /opt/local/share/git/contrib/completion /Applications/Xcode.app/Contents/Developer/usr/share/git-core
 do
 	for gitScript in git-completion.bash git-prompt.sh
 	do
@@ -387,6 +387,81 @@ gcb ()
 	git clone --single-branch --branch "$branch" "$repo" "$shortRepo-$branch.git"
 }
 
+# Do a git format-patch to a Patch Store to save changes outside of git in case of mistakes.
+gifp () {
+	DIR=~/Developer/Patch\ Store
+	NAME=`date +"%Y-%m-%d_%H-%M-%S"`
+
+	if [ "" != "$1" ]
+	then
+		git log -1 "$1" 2> /dev/null > /dev/null
+		if [ 0 -eq $? ]
+		then
+			parent="$1"
+		else
+			echo "Unrecognized reference '$1'."
+			return -1
+		fi
+	else
+		girbr
+		parent="$GIRBR"
+	fi
+
+	git format-patch -o "$DIR/$NAME" "$parent"
+	pushd "$DIR"
+		rm -f previous
+		mv latest previous
+		ln -s $NAME latest
+	popd
+}
+
+# Push branch in parameter or pbasteboard and open PR.
+gipopr () {
+	branch="$1"
+
+	if [ "" == "$branch" ]
+	then
+		branch=$(pbpaste)
+	fi
+
+	count=$(git branch --list "$branch"|wc -l)
+	if [ "0" == "$count" ]
+	then
+		echo "Not a branch: '$branch'."
+		return -1
+	fi
+
+	git push origin "$branch":"$branch"
+	open https://$(git remote get-url origin|sed 's/^git@//;s|:|/|;s/\.git$//')/pull/new/"$branch"
+}
+
+dindent () {
+	input=$(cat -)
+	prefix=$(echo "$input"|grep -v "^$"|perl -pe 's/\S.*//'|sort|head -1)
+	if [ "$(echo "$input"|grep -v "^$"|grep "^$prefix"|wc -l)" == "$(echo "$input"|grep -v "^$"|wc -l)" ]
+	then
+		echo "$input"|sed "s/^$prefix//"
+	else
+		echo "$input"
+	fi
+}
+
+girmco () {
+	for file in "$@"
+	do
+		if [ -f "$file" ]
+		then
+			rm "$file"
+			git checkout "$file"
+		else
+			echo "Not a file: $file" >&2
+		fi
+	done
+
+	echo
+	git status
+}
+
 SSHCOLOR=0
 env | grep -q SSH_CONNECTION && export SSHCOLOR=31
 
@@ -418,7 +493,7 @@ function log_bash_history
 	if [ "$log_bash_history_non_first" == 1 ]
 	then
 		TS="$(date "+%Y-%m-%d.%H:%M:%S")"
-		echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$(history 1)" >> ~/.logs/bash-history-${TS::10}.log
+		echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)$(git branch 2> /dev/null|grep "^\*"|sed 's/^. */:/')	$(history 1)" >> ~/.logs/bash-history-${TS::10}.log
 	else
 		log_bash_history_non_first=1
 	fi
@@ -465,7 +540,23 @@ PS1='\h:\W$(git_prompt_info)\[\e[1;34m\]$(git_pending_rebase)\[\e[0m\]\[\e[1;33m
 # Multi-line prompt with Git branch name and colorful icons.
 PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
 \[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+\u\$                \[\e[1;94m\]\[\e[2m\]__________________________________________________\[\e[0m\]\[\e[65D\]'
+PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
+\[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+\u\$ \[\e7\]               \[\e[1;94m\]\[\e[2m\]__________________________________________________
+                                                                       _\[\e[0m\]\[\e8\]'
+PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
+\[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+\u\$ \[\e7\]               \[\e[1;94m\]\[\e[2m\]__________________________________________________
+                                                                         _\[\e[0m\]\[\e[2A\]
 \u\$ '
+PS1='$(editmode)\[\e[1;33m\]$(psdelim)\[\e[0m\]
+\[\e[1;${SSHCOLOR}m\]\h\[\e[0m\]:\w$(git_full_status)\[\e[0m\]\[\e[1;32m\]$(get_vpn_status)\[\e[0m\]
+\u\$ \[\e7\]               \[\e[1;94m\]\[\e[2m\]_________________________________________________|\[\e[1A\]
+\[\e[73C\]\[\e[1;37m\]_\[\e[0m\]\[\e[1A\]
+\u\$ '
+# Git 50/72 rule
+# or 94 (blue) -> 37 (gray)
 
 # Disable a few things on slow systems
 git_full_status_disabled
