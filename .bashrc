@@ -446,6 +446,22 @@ dindent () {
 	fi
 }
 
+girmco () {
+	for file in "$@"
+	do
+		if [ -f "$file" ]
+		then
+			rm "$file"
+			git checkout "$file"
+		else
+			echo "Not a file: $file" >&2
+		fi
+	done
+
+	echo
+	git status
+}
+
 SSHCOLOR=0
 env | grep -q SSH_CONNECTION && export SSHCOLOR=31
 
