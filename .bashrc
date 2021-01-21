@@ -435,6 +435,17 @@ gipopr () {
 	open https://$(git remote get-url origin|sed 's/^git@//;s|:|/|;s/\.git$//')/pull/new/"$branch"
 }
 
+dindent () {
+	input=$(cat -)
+	prefix=$(echo "$input"|grep -v "^$"|perl -pe 's/\S.*//'|sort|head -1)
+	if [ "$(echo "$input"|grep -v "^$"|grep "^$prefix"|wc -l)" == "$(echo "$input"|grep -v "^$"|wc -l)" ]
+	then
+		echo "$input"|sed "s/^$prefix//"
+	else
+		echo "$input"
+	fi
+}
+
 SSHCOLOR=0
 env | grep -q SSH_CONNECTION && export SSHCOLOR=31
 
