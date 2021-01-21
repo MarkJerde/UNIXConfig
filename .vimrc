@@ -31,6 +31,11 @@ set guioptions-=T  " No toolbar please.
 set history=1000
 set viminfo-=:42 | set viminfo+=:1000
 
+" The macOS Catalina vim defaults diffopt to include internal, which isn't a supported diffopt
+if &diff
+    set diffopt-=internal
+"    set diffopt+=iwhite
+endif
 
 " Support iabs for macros.
 iab INSERTCLASSNAMEHERE <C-R>=expand("%:t:r")<cr>
