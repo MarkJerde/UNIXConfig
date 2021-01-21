@@ -37,7 +37,7 @@ bind '"\C-xp": emacs-editing-mode'
 set -o emacs
 
 # Look for our Git scripts
-for gitCompletion in /usr/share/git-core /opt/local/share/git-core/contrib/completion /opt/local/etc/bash_completion.d /opt/local/share/git/contrib/completion
+for gitCompletion in /usr/share/git-core /opt/local/share/git-core/contrib/completion /opt/local/etc/bash_completion.d /opt/local/share/git/contrib/completion /Applications/Xcode.app/Contents/Developer/usr/share/git-core
 do
 	for gitScript in git-completion.bash git-prompt.sh
 	do
