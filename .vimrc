@@ -383,10 +383,10 @@ noremap D :<C-U>call CalculateCursor(v:count1, "/")<CR>
 vnoremap D :<C-U>'<,'>call CalculateCursor(v:count1, "/")<CR>:noh<CR>gv
 
 au FileType cs set omnifunc=syntaxcomplete#Complete
-au FileType cs set foldmethod=marker
-au FileType cs set foldmarker={,}
-au FileType cs set foldtext=substitute(getline(v:foldstart),'{.*','{...}',)
-au FileType cs set foldlevelstart=2 
+"au FileType cs set foldmethod=marker
+"au FileType cs set foldmarker={,}
+"au FileType cs set foldtext=substitute(getline(v:foldstart),'{.*','{...}',)
+"au FileType cs set foldlevelstart=2 
 
 "" Fix home and end in Terminal.app
 "" end
