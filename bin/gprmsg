@@ -1,0 +1,28 @@
+#!/bin/bash
+
+ref=$1
+toRef=$2
+if [ "" == "$toRef" ]
+then
+	toRef=HEAD
+fi
+
+if ! git rev-parse "$ref" > /dev/null 2> /dev/null
+then
+	ref=$(pbpaste)
+fi
+if ! git rev-parse "$ref" > /dev/null 2> /dev/null
+then
+	echo "error: Missing ref. Please provide a valid ref in the pasteboard or as a parameter."
+	exit -1
+fi
+
+if ! git rev-parse "$toRef" > /dev/null 2> /dev/null
+then
+	echo "error: Not a valid ref '$toRef'."
+	exit -1
+fi
+
+git diff -b -w $ref..$toRef|grep "^diff"|sed 's/.* b\//- /;s/$/ - /'|pbcopy
+git diff -b -w $ref..$toRef
+
