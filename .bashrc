@@ -679,6 +679,13 @@ function used
 	echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$@" >> ~/.used/$prefix-${TS::10}.log
 }
 
+[[ -d ~/.treadmill ]] || mkdir ~/.treadmill
+function tread
+{
+	TS="$(date "+%Y-%m-%d.%H:%M:%S")"
+	echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$@" >> ~/.treadmill/treadmill-${TS::10}.log
+}
+
 # Paste from Flycut. History index as parameter. Defaults to zero.
 function fcpaste
 {
