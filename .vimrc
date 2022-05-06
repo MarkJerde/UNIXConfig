@@ -9,7 +9,7 @@
 set nocompatible	" Use Vim defaults (much better!)
 set bs=2		" allow backspacing over everything in insert mode
 set ai			" always set autoindenting on
-set tw=80		" always limit the width of text to 80
+set tw=0		" never limit the width of text to 80
 set nobackup	" don't keep a backup file
 set viminfo='20,\"75	" read/write a .viminfo file, don't store more
 			" than 75 lines of registers
@@ -383,10 +383,10 @@ noremap D :<C-U>call CalculateCursor(v:count1, "/")<CR>
 vnoremap D :<C-U>'<,'>call CalculateCursor(v:count1, "/")<CR>:noh<CR>gv
 
 au FileType cs set omnifunc=syntaxcomplete#Complete
-au FileType cs set foldmethod=marker
-au FileType cs set foldmarker={,}
-au FileType cs set foldtext=substitute(getline(v:foldstart),'{.*','{...}',)
-au FileType cs set foldlevelstart=2 
+"au FileType cs set foldmethod=marker
+"au FileType cs set foldmarker={,}
+"au FileType cs set foldtext=substitute(getline(v:foldstart),'{.*','{...}',)
+"au FileType cs set foldlevelstart=2 
 
 "" Fix home and end in Terminal.app
 "" end

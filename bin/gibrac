@@ -1,0 +1,52 @@
+#!/bin/bash
+
+found=0
+if [ "" != "$1" ]
+then
+	git branch|grep -q "^. $1$"
+	if [ 0 -eq $? ]
+	then
+		found=1
+	else
+		echo "Branch '$1' not found."
+	fi
+fi
+
+# Instruct the shell to use our aliases.
+shopt -s expand_aliases
+# Load the aliases out here because if we load them in the if-then they won't be
+# available in the same block they are loaded in.
+source ~/.alias
+
+if [ 1 -ne $found ]
+then
+
+	gibra
+
+else
+
+	if [ "1" == "$(osascript -e 'tell app "Xcode" to count of windows')" ]
+	then
+		osascript -e 'tell app "Xcode" to quit'
+	fi
+
+	IFS="
+	"
+	autostash=~/Developer/AutoStash
+	if [ ! -d "$autostash" ] ; then mkdir -p "$autostash" ; fi
+	branch=$(git branch|grep "^\*"|sed 's/^\* //')
+	hash=$(git log -1|head -1|sed 's/^commit //;s/ .*//')
+	if [ -d "$autostash/$hash" ] ; then target="$autostash/$branch" ; else target="$autostash/$hash" ; fi
+	for item in $(git clean -d -x -n|sed 's/^Would remove //') ; do mkdir -p "$target/$(dirname "$item")" ; echo "AutoStash $item";mv "$item" "$target/$item";ls -l "$target/$item" ; done
+	git checkout $1
+	hash=$(git log -1|head -1|sed 's/^commit //;s/ .*//')
+	branch=$(git branch|grep "^\*"|sed 's/^\* //')
+	if [ -d "$autostash/$branch" ] ; then target="$autostash/$branch" ; else target="$autostash/$hash" ; fi
+	if [ -d "$target" ] ; then echo "Restoring AutoBranch from $target" ; cp -a "$target"/* .;git clean -d -x -n|sed 's/^Would remove //';rm -rf "$target" ; fi
+
+	# Reopen Xcode
+	#if test -s *.xcworkspace ; then open *.xcworkspace ; else if test -s *.xcodeproj ; then open *.xcodeproj ; fi ; fi
+	xed .
+
+fi
+

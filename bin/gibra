@@ -1,0 +1,17 @@
+#!/bin/bash
+
+tailCount=10
+filter=""
+
+for var in "$@"
+do
+	if grep -q "^-[1-9][0-9]*$" <<< "$var"
+	then
+		tailCount=$(sed 's/^-//' <<< $var)
+	else
+		filter=$var
+	fi
+done
+
+git for-each-ref --sort=committerdate --format="%(committerdate)%09%(refname)%09%(subject)" refs/heads | grep "$filter" | tail -$tailCount | sed -e "s-refs/heads/--"|sed "s/\(	.*	.\{30\}\).*/\1/;s/\(	\)\(.*\)	/\1$(tput setaf 1)\2$(tput sgr0)\1/"
+

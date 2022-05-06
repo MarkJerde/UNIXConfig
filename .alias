@@ -27,11 +27,9 @@ alias randword='perl -e '"'"'open IN, "</usr/share/dict/words";rand($.) < 1 && (
 # Select a random line from a set of lines provided on STDIN.
 alias randline='perl -e '"'"'rand($.) < 1 && ($n=$_) while <STDIN>;print $n'"'"
 # Select a random voice.
-alias randvoice='echo "Bruce
-Fred
-Junior
-Ralph
-Zarvox"|randline'
+alias randvoice='say -v ?|sed "s/ .*//"|randline'
+alias randdrink='echo soda coffee tea beer whiskey scotch vodka gin kool-aid | tr " " "\n" | randline'
+alias saydone='say -v $(randvoice) "Put down your $(randdrink). It'"'"'s time to get working."'
 alias setmagicword='export MAGICWORD=`randword`'
 alias getmagicword='echo Magic word is $MAGICWORD'
 
@@ -102,16 +100,20 @@ alias gipohm='gifindpushpendingfiletypechanges && echo "Pushing HEAD:master to o
 alias gls='git log --stat'
 alias gcs='git commit --no-edit --squash'
 alias gne='git revert --no-edit'
+alias gicpne='git cherry-pick --no-edit'
 alias gilo='girbr;git log $GIRBR..$GIBR'
 alias giri='girbr;git rebase --interactive $GIRBR~1 --autosquash'
 alias gifindfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC ]; then mv $GFTC $GFTC.old; else echo > $GFTC.old;fi;for i in $(git status|grep "modified:"|sed "s/.*modified: *//"|grep -v " ");do DIFF=$(diff <(git show origin/master:"$i"|file -) <(cat "$i"|file -));RES=$?;if [ 0 != $RES ];then grep -q "^$i$" $GFTC.old;RES=$?;if [ 0 != $RES ]; then echo "$i";echo "$DIFF";echo "#$i" >> $GFTC;PROBLEM="Problems detected.  Uncomment in $GFTC to override.";fi;fi;done;echo $PROBLEM|grep "Problems detected.";echo $?|grep -qv "^0$"'
 alias gifindpushpendingfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC ]; then mv $GFTC $GFTC.old; else echo > $GFTC.old;fi;for i in $(git log origin/master..master --name-only --pretty="format:" | sort | uniq|grep -v " ");do DIFF=$(diff <(git show origin/master:"$i" 2> /dev/null|file -) <(git show HEAD:"$i" 2> /dev/null|file -));RES=$?;if [ 0 != $RES ];then echo "$DIFF" |grep -q "^[<>] /dev/stdin: no read permission";if [ 0 == $? ];then RES=0;fi;fi; if [ 0 != $RES ];then grep -q "^$i$" $GFTC.old;RES=$?;if [ 0 != $RES ]; then echo "$i";echo "$DIFF";echo "#$i" >> $GFTC;PROBLEM="Problems detected.  Uncomment in $GFTC to override.";fi;fi;done;echo $PROBLEM|grep "Problems detected.";echo $?|grep -qv "^0$"'
 alias gico='gifindfiletypechanges && git commit'
 alias gisync='for i in ~/Developer/sync_*.git ; do pushd "$i" ; git fetch upstream;for branch in $(git branch -r|grep "^  upstream\/"|sed "s/^  upstream\///") ; do git push origin upstream/$branch:$branch ; done ; popd ; done'
-alias gibra='git for-each-ref --sort=committerdate --format="%(committerdate)%09%(refname)%09%(subject)" refs/heads | tail | sed -e "s-refs/heads/--"|sed "s/\(	.*	.\{30\}\).*/\1/;s/\(	\)\(.*\)	/\1$(tput setaf 1)\2$(tput sgr0)\1/"'
+#alias gibra='git for-each-ref --sort=committerdate --format="%(committerdate)%09%(refname)%09%(subject)" refs/heads | tail | sed -e "s-refs/heads/--"|sed "s/\(	.*	.\{30\}\).*/\1/;s/\(	\)\(.*\)	/\1$(tput setaf 1)\2$(tput sgr0)\1/"'
 alias prchanges='grep "^diff"|sed "s/.* b\///"|sed "s/.*/- & - /"'
 # Git grep blame
 alias gigrbl='git blame "$(git grep -l "$(pbpaste)" | head -1)"'
+# Git merged changes pending release
+alias gipending='git log --oneline $(git log --merges --oneline upstream/main|sed -n "1,/[Bb]ump/p"|tail -1|sed "s/ .*//")..upstream/main|grep "Merge pull request"|tail -r|sed "s/.*Merge pull request/• PR/;s/ from [^\/]*\// - /;s/_/ /g"'
+alias gireleasenotes='git log --oneline $(git log --merges --oneline upstream/main|sed -n "2,/[Bb]ump/p"|tail -1|sed "s/ .*//")..upstream/main|grep "Merge pull request"|tail -r|sed "s/.*Merge pull request/• PR/;s/ from [^\/]*\// - /;s/_/ /g"'
 
 # Pasteboard use
 alias pbdiff='vi -d ~/Desktop/"$(ls -t ~/Desktop/|grep "^Clipping "|head -2|tail -1)" ~/Desktop/"$(ls -t ~/Desktop/|grep "^Clipping "|head -1)"'
@@ -211,5 +213,11 @@ alias urlencode='perl -MURI::Escape -ne '"'"'print uri_escape($_)'"'"''
 
 # Add a list of numbers, one per line.
 alias addup='sed '"'"'s/ .*//'"'"'|tr '"'"'\n'"'"' '"'"'+'"'"'|sed '"'"'s/+$/Z/'"'"'|tr '"'"'Z'"'"' '"'"'\n'"'"'|bc'
+
+# Open Flickr API doc for endpoint in pasteboard
+alias pbflkapi='open "https://www.flickr.com/services/api/$(pbpaste|sed "s/[^a-zA-Z\.]//g").html"'
+
+# Open Flickr API Explorer page for endpoint in pasteboard
+alias pbflkapiex='open "https://www.flickr.com/services/api/explore/$(pbpaste|sed "s/[^a-zA-Z\.]//g")"'
 
 test -s ~/.alias.work && . ~/.alias.work || true

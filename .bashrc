@@ -3,6 +3,8 @@ test -s ~/.bashrc.default && . ~/.bashrc.default || true
 
 export PATH=/opt/local/bin:$PATH
 test -d $HOME/bin && export PATH=$HOME/bin:$PATH || true
+# Add the bin for scripts contained in the UNIXConfig repository:
+test -d $HOME/bin/ucbin && export PATH=$HOME/bin/ucbin:$PATH || true
 # For systems with a secondary home, such as WSL:
 test -d $HOME/home/bin && export PATH=$HOME/home/bin:$PATH || true
 
@@ -435,6 +437,161 @@ gipopr () {
 	open https://$(git remote get-url origin|sed 's/^git@//;s|:|/|;s/\.git$//')/pull/new/"$branch"
 }
 
+# Bump version number.
+bumpfrom () {
+	fromVersion="$1"
+	toVersion=$(echo "$(echo "$fromVersion" | sed 's/^\(.*\.\).*/\1/')$(echo "$fromVersion" | sed 's/.*\./1+/' | bc)")
+	echo "to: $toVersion"
+	git diff --cached|wc -l|sed 's/[^0-9]//g'|grep -q "^0$"
+	cleanSandboxCheck=$?
+	for file in $(git diff --stat $lastHash~1..$lastHash | sed '$d;s/^ //;s/ .*//')
+	do
+		echo "file: $file"
+		sed -i "" "s/$fromVersion/$toVersion/" "$file"
+		if [ 0 == "$cleanSandboxCheck" ]
+		then
+			git add "$file"
+		fi
+	done
+	if [ 0 == "$cleanSandboxCheck" ]
+	then
+		echo "commit"
+		git commit -m "Version Bump to $toVersion"
+	fi
+	echo "done"
+}
+
+# Bump version number.
+bump () {
+	git remote update
+	lastHash=$(git log upstream/main --no-merges --oneline | grep -i bump | sed 's/ .*//' | head -1)
+	fromVersion=$(git diff $lastHash~1..$lastHash | grep "^+[^+]" | sed 's/[^0-9]*//;s/\([0-9][0-9\.]*[0-9]\).*/\1/' | sort | uniq)
+	count=$(echo "$fromVersion" | wc -l | sed 's/[^0-9]//g')
+	if [ 1 == "$count" ]
+	then
+		bumpfrom "$fromVersion"
+	else
+		echo "Unable to identify current version"
+	fi
+}
+
+# Bump version number and create a PR for it.
+bumppr () {
+	git remote update
+	lastHash=$(git log upstream/main --no-merges --oneline | grep -i bump | sed 's/ .*//' | head -1)
+	fromVersion=$(git diff $lastHash~1..$lastHash | grep "^+[^+]" | sed 's/[^0-9]*//;s/\([0-9][0-9\.]*[0-9]\).*/\1/' | sort | uniq)
+	count=$(echo "$fromVersion" | wc -l | sed 's/[^0-9]//g')
+	if [ 1 == "$count" ]
+	then
+		toVersion=$(echo "$(echo "$fromVersion" | sed 's/^\(.*\.\).*/\1/')$(echo "$fromVersion" | sed 's/.*\./1+/' | bc)")
+		echo "to: $toVersion"
+		branch="bump_$(echo "$toVersion"|sed 's/\./_/g')"
+		git branch "$branch" upstream/main
+		git checkout "$branch"
+		if [ "$branch" == "$(git branch --show-current)" ]
+		then
+			bump
+#			for file in $(git diff --stat $lastHash~1..$lastHash | sed '$d;s/^ //;s/ .*//')
+#			do
+#				sed -i "" "s/$fromVersion/$toVersion/" "$file"
+#				git add "$file"
+#			done
+			git log --oneline -1 | grep -q "Version Bump to $toVersion"
+			if [ 0 -eq $? ]
+			then
+#			git commit -m "Version Bump to $toVersion"
+				gipopr "$branch"
+				gprmsg upstream/main
+			fi
+		else
+			echo "Unable to establish branch"
+		fi
+	else
+		echo "Unable to identify current version"
+	fi
+}
+
+# Create release branch and check it out.
+release () {
+	git remote update
+	lastHash=$(git log upstream/main --no-merges --oneline | grep -i bump | sed 's/ .*//' | head -1)
+	fromVersion=$(git diff $lastHash~1..$lastHash | grep "^+[^+]" | sed 's/[^0-9]*//;s/\([0-9][0-9\.]*[0-9]\).*/\1/' | sort | uniq)
+	count=$(echo "$fromVersion" | wc -l | sed 's/[^0-9]//g')
+	if [ 1 == "$count" ]
+	then
+		toVersion="$fromVersion"
+		echo "to: $toVersion"
+		echo "$toVersion" | pbcopy
+		open https://$(git remote get-url origin|sed 's/^git@//;s|:|/|;s/\.git$//')/releases/new
+		echo -n "Enter (create) a new tag name perfectly matching $toVersion and press return." ; read
+		echo -n "Set target: main and press return." ; read
+		echo -n "Enter a title perfectly matching $toVersion and press return." ; read
+		echo -n "Auto-generate release notes and press return." ; read
+		echo -n "Publish release and press return." ; read
+		sleep 5
+		git remote update
+		branch="release_$(echo "$toVersion"|sed 's/\./_/g')"
+		git branch "$branch" "$toVersion"
+		git checkout "$branch"
+		if [ "$branch" == "$(git branch --show-current)" ]
+		then
+			cat RELEASEME.md |sed -n '/^### Xcode Build/,/^## Upload/p'|sed '/^### Xcode Build/d'
+			echo
+			echo -n "While waiting to upload, get your release ready. (press return to continue)" ; read
+			open 'https://appstoreconnect.apple.com/login?targetUrl=%2Fapps&authResult=FAILED'
+			IFS=$'\n' ; for i in $(cat RELEASEME.md | sed '1,/^. -------- . -----------/d;/^$/,$d' | sed 's/ *| */|/g' | tr '|' '\n' | sed 's/<br.*//' | grep -v "^$") ; do echo "$i" | tr '\n' ' ' | sed 's/ *$//' | pbcopy ; echo "$i" ; read ; done
+			echo
+			cat RELEASEME.md |sed -n '/^## Upload/,/^## App Store Connect/p'|sed '/^## App Store Connect/d'
+		else
+			echo "Unable to establish branch"
+		fi
+	else
+		echo "Unable to identify current version"
+	fi
+}
+
+# Create a beta release.
+betarelease () {
+	git remote update
+	lastHash=$(git log upstream/main --no-merges --oneline | grep -i bump | sed 's/ .*//' | head -1)
+	fromVersion=$(git diff $lastHash~1..$lastHash | grep "^+[^+]" | sed 's/[^0-9]*//;s/\([0-9][0-9\.]*[0-9]\).*/\1/' | sort | uniq)
+	count=$(echo "$fromVersion" | wc -l | sed 's/[^0-9]//g')
+	if [ 1 == "$count" ]
+	then
+		toVersion=$(echo "$(echo "$fromVersion" | sed 's/^\(.*\.\).*/\1/')$(echo "$fromVersion" | sed 's/.*\./1+/' | bc)")
+		betaTimestamp="$(date "+%Y%m%d")"
+		tag="${toVersion}_BETA_${betaTimestamp}"
+		echo "to: $toVersion"
+		echo "$tag" | pbcopy
+		open https://$(git remote get-url origin|sed 's/^git@//;s|:|/|;s/\.git$//')/releases/new
+		echo -n "Enter (create) a new tag name perfectly matching $tag and press return." ; read
+		echo -n "Set target: main and press return." ; read
+		echo -n "Enter a title perfectly matching $tag and press return." ; read
+		echo -n "Auto-generate release notes and press return." ; read
+		echo -n "Publish release and press return." ; read
+		sleep 5
+		git remote update
+		branch="beta_$(echo "$tag"|sed 's/\./_/g')"
+		git branch "$branch" "$tag"
+		git checkout "$branch"
+		if [ "$branch" == "$(git branch --show-current)" ]
+		then
+			bump
+			echo "Select target 'Beta'."
+			read
+			echo
+			cat RELEASEME.md |sed -n '/^### Xcode Build/,/^## Upload/p'|sed '/^### Xcode Build/d'
+			read
+			echo
+			cat RELEASEME.md |sed -n '/^## Upload/,/^## App Store Connect/p'|sed '/^## App Store Connect/d'
+		else
+			echo "Unable to establish branch"
+		fi
+	else
+		echo "Unable to identify current version"
+	fi
+}
+
 dindent () {
 	input=$(cat -)
 	prefix=$(echo "$input"|grep -v "^$"|perl -pe 's/\S.*//'|sort|head -1)
@@ -522,6 +679,13 @@ function used
 	echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$@" >> ~/.used/$prefix-${TS::10}.log
 }
 
+[[ -d ~/.treadmill ]] || mkdir ~/.treadmill
+function tread
+{
+	TS="$(date "+%Y-%m-%d.%H:%M:%S")"
+	echo "$TS	$LOG_BASH_HISTORY_HOSTNAME:$LOG_BASH_HISTORY_PID:$(pwd)	$@" >> ~/.treadmill/treadmill-${TS::10}.log
+}
+
 # Paste from Flycut. History index as parameter. Defaults to zero.
 function fcpaste
 {
@@ -567,3 +731,11 @@ fi
 
 test -s ~/.bashrc.work && . ~/.bashrc.work || true
 
+if [ -f "$HOME/perl5/bin" ]
+then
+	PATH="$HOME/perl5/bin${PATH:+:${PATH}}"; export PATH;
+	PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+	PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+	PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
+	PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
+fi
