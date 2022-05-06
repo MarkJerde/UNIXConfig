@@ -27,11 +27,9 @@ alias randword='perl -e '"'"'open IN, "</usr/share/dict/words";rand($.) < 1 && (
 # Select a random line from a set of lines provided on STDIN.
 alias randline='perl -e '"'"'rand($.) < 1 && ($n=$_) while <STDIN>;print $n'"'"
 # Select a random voice.
-alias randvoice='echo "Bruce
-Fred
-Junior
-Ralph
-Zarvox"|randline'
+alias randvoice='say -v ?|sed "s/ .*//"|randline'
+alias randdrink='echo soda coffee tea beer whiskey scotch vodka gin kool-aid | tr " " "\n" | randline'
+alias saydone='say -v $(randvoice) "Put down your $(randdrink). It'"'"'s time to get working."'
 alias setmagicword='export MAGICWORD=`randword`'
 alias getmagicword='echo Magic word is $MAGICWORD'
 
