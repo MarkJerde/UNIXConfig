@@ -9,7 +9,7 @@
 set nocompatible	" Use Vim defaults (much better!)
 set bs=2		" allow backspacing over everything in insert mode
 set ai			" always set autoindenting on
-set tw=80		" always limit the width of text to 80
+set tw=0		" never limit the width of text to 80
 set nobackup	" don't keep a backup file
 set viminfo='20,\"75	" read/write a .viminfo file, don't store more
 			" than 75 lines of registers
