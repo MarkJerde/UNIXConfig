@@ -214,4 +214,10 @@ alias urlencode='perl -MURI::Escape -ne '"'"'print uri_escape($_)'"'"''
 # Add a list of numbers, one per line.
 alias addup='sed '"'"'s/ .*//'"'"'|tr '"'"'\n'"'"' '"'"'+'"'"'|sed '"'"'s/+$/Z/'"'"'|tr '"'"'Z'"'"' '"'"'\n'"'"'|bc'
 
+# Open Flickr API doc for endpoint in pasteboard
+alias pbflkapi='open "https://www.flickr.com/services/api/$(pbpaste|sed "s/[^a-zA-Z\.]//g").html"'
+
+# Open Flickr API Explorer page for endpoint in pasteboard
+alias pbflkapiex='open "https://www.flickr.com/services/api/explore/$(pbpaste|sed "s/[^a-zA-Z\.]//g")"'
+
 test -s ~/.alias.work && . ~/.alias.work || true
