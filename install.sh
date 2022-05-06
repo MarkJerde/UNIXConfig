@@ -18,6 +18,8 @@ echo .vimrc
 	ln -s "$FROM/$file" "$TO/$file"
 	ls -l "$TO/$file"
 done
+if [ ! -e "$TO/bin" ] ; then mkdir "$TO/bin" ; fi
+if [ ! -e "$TO/bin/ucbin" ] ; then ln -s "$FROM/bin" "$TO/bin/ucbin" ; fi
 
 echo Done!
 
