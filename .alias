@@ -111,6 +111,9 @@ alias gisync='for i in ~/Developer/sync_*.git ; do pushd "$i" ; git fetch upstre
 alias prchanges='grep "^diff"|sed "s/.* b\///"|sed "s/.*/- & - /"'
 # Git grep blame
 alias gigrbl='git blame "$(git grep -l "$(pbpaste)" | head -1)"'
+# Git merged changes pending release
+alias gipending='git log --oneline $(git log --merges --oneline upstream/main|sed -n "1,/[Bb]ump/p"|tail -1|sed "s/ .*//")..upstream/main|grep "Merge pull request"|tail -r|sed "s/.*Merge pull request/• PR/;s/ from [^\/]*\// - /;s/_/ /g"'
+alias gireleasenotes='git log --oneline $(git log --merges --oneline upstream/main|sed -n "2,/[Bb]ump/p"|tail -1|sed "s/ .*//")..upstream/main|grep "Merge pull request"|tail -r|sed "s/.*Merge pull request/• PR/;s/ from [^\/]*\// - /;s/_/ /g"'
 
 # Pasteboard use
 alias pbdiff='vi -d ~/Desktop/"$(ls -t ~/Desktop/|grep "^Clipping "|head -2|tail -1)" ~/Desktop/"$(ls -t ~/Desktop/|grep "^Clipping "|head -1)"'
