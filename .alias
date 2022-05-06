@@ -106,7 +106,7 @@ alias gifindfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC 
 alias gifindpushpendingfiletypechanges='PROBLEM=0;GFTC=~/.gitfiletypechanges;if [ -f $GFTC ]; then mv $GFTC $GFTC.old; else echo > $GFTC.old;fi;for i in $(git log origin/master..master --name-only --pretty="format:" | sort | uniq|grep -v " ");do DIFF=$(diff <(git show origin/master:"$i" 2> /dev/null|file -) <(git show HEAD:"$i" 2> /dev/null|file -));RES=$?;if [ 0 != $RES ];then echo "$DIFF" |grep -q "^[<>] /dev/stdin: no read permission";if [ 0 == $? ];then RES=0;fi;fi; if [ 0 != $RES ];then grep -q "^$i$" $GFTC.old;RES=$?;if [ 0 != $RES ]; then echo "$i";echo "$DIFF";echo "#$i" >> $GFTC;PROBLEM="Problems detected.  Uncomment in $GFTC to override.";fi;fi;done;echo $PROBLEM|grep "Problems detected.";echo $?|grep -qv "^0$"'
 alias gico='gifindfiletypechanges && git commit'
 alias gisync='for i in ~/Developer/sync_*.git ; do pushd "$i" ; git fetch upstream;for branch in $(git branch -r|grep "^  upstream\/"|sed "s/^  upstream\///") ; do git push origin upstream/$branch:$branch ; done ; popd ; done'
-alias gibra='git for-each-ref --sort=committerdate --format="%(committerdate)%09%(refname)%09%(subject)" refs/heads | tail | sed -e "s-refs/heads/--"|sed "s/\(	.*	.\{30\}\).*/\1/;s/\(	\)\(.*\)	/\1$(tput setaf 1)\2$(tput sgr0)\1/"'
+#alias gibra='git for-each-ref --sort=committerdate --format="%(committerdate)%09%(refname)%09%(subject)" refs/heads | tail | sed -e "s-refs/heads/--"|sed "s/\(	.*	.\{30\}\).*/\1/;s/\(	\)\(.*\)	/\1$(tput setaf 1)\2$(tput sgr0)\1/"'
 alias prchanges='grep "^diff"|sed "s/.* b\///"|sed "s/.*/- & - /"'
 # Git grep blame
 alias gigrbl='git blame "$(git grep -l "$(pbpaste)" | head -1)"'
